@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PharmaFlow.Api/PharmaFlow.Api.csproj" />
+    <Project Path="src/PharmaFlow.Application/PharmaFlow.Application.csproj" />
+    <Project Path="src/PharmaFlow.Domain/PharmaFlow.Domain.csproj" />
+    <Project Path="src/PharmaFlow.Infrastructure/PharmaFlow.Infrastructure.csproj" />
+    <Project Path="src/PharmaFlow.Web/PharmaFlow.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PharmaFlow.Tests.Integration/PharmaFlow.Tests.Integration.csproj" />
+    <Project Path="tests/PharmaFlow.Tests.Unit/PharmaFlow.Tests.Unit.csproj" />
+  </Folder>
+</Solution>
