@@ -370,10 +370,10 @@ Seven projects under `/sandbox/PharmaFlow/`. `src/` and `tests/` split is the mo
 
 | Project | Purpose | Depends on | MUST NOT depend on |
 |---|---|---|---|
-| **PharmaFlow.Domain** | Pure C#: entities, aggregates, value objects, strongly-typed IDs, domain events, domain exceptions, domain interfaces (`IClock`, `IDomainEventDispatcher`). No frameworks. | BCL only (+ `Result`/`Error` primitives). | EF Core, ASP.NET, MediatR, FluentValidation, Serilog, Mapperly. |
-| **PharmaFlow.Application** | CQRS commands/queries + handlers, validators, pipeline behaviors, DTOs, application-layer ports (`IStudyRepository`, `ICurrentUser`, `IAuditWriter`, `IDocumentStorage`, `IAppDbContext`). | Domain, MediatR, FluentValidation, Mapperly attributes. | EF Core, ASP.NET hosting, Azure SDKs, Serilog (use `Microsoft.Extensions.Logging.Abstractions`). |
+| **PharmaFlow.Domain** | Pure C#: entities, aggregates, value objects, strongly-typed IDs, domain events, domain exceptions, domain interfaces (`IClock`, `IDomainEventDispatcher`). No frameworks. | BCL only (+ `Result`/`Error` primitives). | EF Core, ASP.NET, Mediator, FluentValidation, Serilog, Mapperly. |
+| **PharmaFlow.Application** | CQRS commands/queries + handlers, validators, pipeline behaviors, DTOs, application-layer ports (`IStudyRepository`, `ICurrentUser`, `IAuditWriter`, `IDocumentStorage`, `IAppDbContext`). | Domain, Mediator, FluentValidation, Mapperly attributes. | EF Core, ASP.NET hosting, Azure SDKs, Serilog (use `Microsoft.Extensions.Logging.Abstractions`). |
 | **PharmaFlow.Infrastructure** | Concrete adapters: `AppDbContext`, EF Core configurations, migrations, repository impls, `SaveChangesInterceptor` for audit, Blob adapter, JWT issuer, email sender, clock, OTel exporters wiring. | Application, Domain, EF Core, Npgsql, Azure SDKs, Serilog. | ASP.NET hosting framework, Api, Web. |
-| **PharmaFlow.Api** | Composition root for HTTP. Minimal API endpoint groups, ProblemDetails, OpenAPI, auth wiring, DI registration, `Program.cs`. | Application, Infrastructure, `Microsoft.AspNetCore.App`. | EF Core types directly in endpoints — go through MediatR. |
+| **PharmaFlow.Api** | Composition root for HTTP. Minimal API endpoint groups, ProblemDetails, OpenAPI, auth wiring, DI registration, `Program.cs`. | Application, Infrastructure, `Microsoft.AspNetCore.App`. | EF Core types directly in endpoints — go through Mediator. |
 | **PharmaFlow.Web** | Blazor Web App (Auto, .NET 10). Talks to API over HTTP. | Application DTOs (or shared `Contracts` if introduced) for shared types. | EF Core, Infrastructure. |
 | **PharmaFlow.Tests.Unit** | Domain + Application handler tests. Pure, fast, no I/O. | Domain, Application, xUnit, FluentAssertions, NSubstitute. | Infrastructure, real DB. |
 | **PharmaFlow.Tests.Integration** | API-level tests via `WebApplicationFactory<Program>` against real Postgres in Testcontainers. | Api, Infrastructure, `Testcontainers.PostgreSql`, xUnit. | Mocking the DB. |
@@ -403,9 +403,9 @@ Seven projects under `/sandbox/PharmaFlow/`. `src/` and `tests/` split is the mo
 | Database | **PostgreSQL** (Azure DB for PostgreSQL Flexible Server B1ms) | Cheaper at low end on Azure; Testcontainers rock-solid; `docker run postgres` matches prod; native JSONB; Apple-Silicon-friendly local dev. Trade-off: lose Azure SQL temporal tables — but we want to *build* the audit pipeline ourselves. |
 | ORM | **EF Core 10** | Scoped DbContext per request; owned types; value converters for typed IDs; global query filters for soft-delete + tenancy seam; no lazy loading; `AsNoTracking()` on reads; compiled queries only after profiling. |
 | API style | **Minimal APIs, feature-grouped endpoints** | Curriculum-aligned; `MapGroup("/api/v1/studies")...` reads cleanly; endpoint filters give cross-cutting hooks. |
-| Mediator | **MediatR 12.4.x** (Apache 2.0) | Free for v1; ecosystem-aligned; swap to `Mediator` (martinothamar) is a 2-hour mechanical refactor if licensing changes for v13+. |
+| Mediator | **`Mediator` (martinothamar/Mediator) 1.0.2123** (MIT, source-generated) | Swap from MediatR — MediatR v12+ went commercial-license; portfolio repo cannot ship paid licenses. Source-gen → zero-allocation dispatch (faster than reflection-based MediatR). `ISender`/`IPublisher`/`IRequest<T>` surface near-identical, so handler code is portable. See **ADR-0001**. |
 | Result pattern | **Hand-rolled `Result`/`Result<T>` + `Error` record** | ~80 lines; learning value; pairs cleanly with ProblemDetails switch expression. In `Domain`. |
-| Validation | **FluentValidation 11.x** | Each command/query gets a validator; hooked into MediatR via `ValidationBehavior`; fail fast → `Error.Validation`. |
+| Validation | **FluentValidation 12.x** | Each command/query gets a validator; hooked into Mediator via `ValidationBehavior`; fail fast → `Error.Validation`. |
 | Mapping | **Mapperly** (source generator) | Compile-time; debugger-friendly; no runtime DI ceremony; no AutoMapper. |
 | Identity | **ASP.NET Core Identity + custom JWT issuer** | Full control over hashing, lockout, MFA, refresh rotation — strong portfolio storytelling. Entra External ID as v1.1 stretch. |
 | Logging | **Serilog** (Console JSON, App Insights via OTLP) | Structured; correlation IDs from W3C TraceContext; redaction enricher for `password`/`token`/`signatureValue`. |
@@ -427,7 +427,7 @@ Seven projects under `/sandbox/PharmaFlow/`. `src/` and `tests/` split is the mo
 - Domain exceptions only for invariant violations that should never be reached. Most failures come back as `Result.Failure(error)`.
 
 ### 9.2 Application layer
-- CQRS via MediatR `IRequest<Result<T>>`. Folder per feature.
+- CQRS via Mediator (martinothamar/Mediator) `IRequest<Result<T>>`. Folder per feature. Pipeline-behavior registration syntax differs slightly from MediatR — see ADR-0001.
 - Commands mutate, return `Result` or `Result<TId>`. Queries read-only, return `Result<TDto>` or `Result<PagedList<TDto>>`.
 - Handlers thin: pull aggregate via repo / `IAppDbContext` → call domain method → persist → map → return.
 - **Pipeline behaviors** (outer → inner):
@@ -1344,7 +1344,7 @@ All POST mutations require `Idempotency-Key` header (client-generated GUID). Sto
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="MediatR" Version="12.4.1" />
+    <PackageVersion Include="Mediator" Version="1.0.2123" />  <!-- swapped from MediatR per ADR-0001 -->
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="Riok.Mapperly" Version="4.1.1" />
@@ -1363,7 +1363,7 @@ All POST mutations require `Idempotency-Key` header (client-generated GUID). Sto
 </Project>
 ```
 
-Per-project `.csproj`: `<PackageReference Include="MediatR" />` (no version).
+Per-project `.csproj`: `<PackageReference Include="Mediator" />` (no version).
 
 ### 23.3 `.editorconfig`
 Place at `/sandbox/PharmaFlow/.editorconfig`. Microsoft modern template plus:
@@ -1434,7 +1434,7 @@ Aligned to `LearningPlan.md` Months 2–4.
 |---|---|---|
 | 0. Scaffold | 1 | Solution, 7 projects, `Directory.Build.props`, `Directory.Packages.props`, CI green, hello-world endpoint. |
 | 1. Domain core + persistence | 2–3 | Domain entities (per §3), `AppDbContext`, migrations, audit interceptor (no chain yet), integration test passes against Testcontainers. |
-| 2. CQRS + first feature | 4–5 | MediatR + behaviors wired; `Studies` feature end-to-end (CRUD + cursor pagination + audit verified). |
+| 2. CQRS + first feature | 4–5 | Mediator + behaviors wired; `Studies` feature end-to-end (CRUD + cursor pagination + audit verified). |
 | 3. Auth | 6 | Identity + JWT, role policies, refresh-rotation + revocation, rate limiting, security headers, Auditor read-only enforcement. Resource-based authz integration tests. |
 | 4. Documents + Blob + eSig | 7–8 | Document upload to Azurite/Blob; Signature schema + hash binding + chain; signing flows (intent → authenticate → commit); MFA TOTP enrolment + step-up. |
 | 5. Audit query API + Auditor UI | 9 | Audit query endpoints (paginated, filterable); chain verifier hosted service; Blazor pages consuming them. |
@@ -1487,7 +1487,7 @@ CI/CD:
 - `.github/dependabot.yml`
 
 Docs:
-- `docs/adr/` (decisions: MediatR vs Mediator, Postgres vs SQL, Blazor mode, no-event-sourcing)
+- `Docs/ADRs/` (decisions: Mediator over MediatR (ADR-0001), Postgres over Azure SQL (ADR-0002), Blazor mode, no-event-sourcing)
 - `docs/compliance/part11-mapping.md`
 - `docs/compliance/alcoa-plus-mapping.md`
 
@@ -1578,8 +1578,8 @@ When PharmaFlow v1 is built, verify by:
 
 Each lives as a one-page Markdown file in `docs/adr/NNNN-title.md`:
 
-1. ADR-0001: Postgres over Azure SQL.
-2. ADR-0002: MediatR 12.x over Mediator (martinothamar).
+1. ADR-0001: Mediator over MediatR (license-driven swap; martinothamar/Mediator, MIT).
+2. ADR-0002: Postgres over Azure SQL.
 3. ADR-0003: Mapperly over AutoMapper.
 4. ADR-0004: Hand-rolled `Result<T>` over FluentResults.
 5. ADR-0005: Blazor Web App (Auto) over React.
