@@ -37,3 +37,13 @@ jobs:
 
       - name: Test
         run: dotnet test --no-build -c Release
+
+      - name: Vulnerability scan
+        run: |
+          set -e
+          output=$(dotnet list package --vulnerable --include-transitive 2>&1)
+          echo "$output"
+          if echo "$output" | grep -E '> (High|Critical)' >/dev/null; then
+            echo "::error::High or Critical vulnerability detected"
+            exit 1
+          fi
