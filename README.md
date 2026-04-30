@@ -2,7 +2,7 @@
 
 > Clinical-trial study tracker — portfolio simulation on .NET 10 + Azure.
 
-![CI](https://img.shields.io/badge/CI-pending-lightgrey)
+[![CI](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml)
 ![Build](https://img.shields.io/badge/build-pending-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT_(tbc)-lightgrey)
 
