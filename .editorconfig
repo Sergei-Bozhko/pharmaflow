@@ -416,3 +416,14 @@ dotnet_naming_style.ends_with_async.capitalization = pascal_case
   # `Result<Study>.Success(study)` is intentional and idiomatic for this pattern
   # (see FluentResults, ErrorOr).
   dotnet_diagnostic.CA1000.severity = none
+
+  # ============================================================================
+  # Test-only diagnostic overrides                                              
+  # ============================================================================
+  [**/tests/**/*.cs]                          
+                                                                                                                            
+  # CA1707: Identifiers should not contain underscores.                              
+  # Suppressed in tests only — the convention `Method_under_condition_yields_outcome`                                       
+  # is standard for xUnit/.NET test naming and reads as a sentence in test runner
+  # output. Production code keeps CA1707 enforced (no underscores there).                                                   
+  dotnet_diagnostic.CA1707.severity = none
