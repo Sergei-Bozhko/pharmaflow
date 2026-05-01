@@ -2,19 +2,19 @@ using PharmaFlow.Domain.Common;
 
 namespace PharmaFlow.Tests.Unit.Common;
 
-public class ResulTests
+public class ResultTests
 {
     [Fact]
     public void Success_carries_isSuccess_true_and_no_error()
     {
         var nonGeneric = Result.Success();
         Assert.True(nonGeneric.IsSuccess);
-        Assert.False(nonGeneric.IsFalure);
+        Assert.False(nonGeneric.IsFailure);
         Assert.Equal(Error.None, nonGeneric.Error);
 
         var generic = Result<int>.Success(42);
         Assert.True(generic.IsSuccess);
-        Assert.False(generic.IsFalure);
+        Assert.False(generic.IsFailure);
         Assert.Equal(Error.None, generic.Error);
         Assert.Equal(42, generic.Value);
     }
@@ -26,12 +26,12 @@ public class ResulTests
 
         var nonGeneric = Result.Failure(error);
         Assert.False(nonGeneric.IsSuccess);
-        Assert.True(nonGeneric.IsFalure);
+        Assert.True(nonGeneric.IsFailure);
         Assert.Equal(error, nonGeneric.Error);
 
         var generic = Result<int>.Failure(error);
         Assert.False(generic.IsSuccess);
-        Assert.True(generic.IsFalure);
+        Assert.True(generic.IsFailure);
         Assert.Equal(error, generic.Error);
     }
 
@@ -61,7 +61,7 @@ public class ResulTests
     public void Implicit_Error_to_ResultT_yields_Failure()
     {
         Result<int> result = Error.NotFound("study.not_found", "Not found.");
-        Assert.True(result.IsFalure);
+        Assert.True(result.IsFailure);
         Assert.Equal("study.not_found", result.Error.Code);
         Assert.Equal(ErrorType.NotFound, result.Error.ErrorType);
     }
@@ -70,7 +70,7 @@ public class ResulTests
     public void Implicit_Error_to_Result_yields_Failure()
     {
         Result result = Error.Conflict("study.invalid_transition", "Cannot activate from Closed.");
-        Assert.True(result.IsFalure);
+        Assert.True(result.IsFailure);
         Assert.Equal("study.invalid_transition", result.Error.Code);
         Assert.Equal(ErrorType.Conflict, result.Error.ErrorType);
     }

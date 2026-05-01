@@ -2,9 +2,9 @@ namespace PharmaFlow.Domain.Common;
 
 public class Result
 {
-    public bool IsSuccess {get;}
-    public bool IsFalure => !IsSuccess;
-    public Error Error {get;}
+    public bool IsSuccess { get; }
+    public bool IsFailure => !IsSuccess;
+    public Error Error { get; }
 
     protected internal Result(bool isSuccess, Error error)
     {
@@ -12,7 +12,7 @@ public class Result
         {
             throw new InvalidOperationException("A successful Result must carry Error.None.");
         }
-        if(!isSuccess && error == Error.None)
+        if (!isSuccess && error == Error.None)
         {
             throw new InvalidOperationException("A failed Result must carry a non-None error.");
         }
@@ -34,13 +34,13 @@ public sealed class Result<T> : Result
         IsSuccess
             ? _value
             : throw new InvalidOperationException("Cannot access Value on a failure Result.");
-    
+
     private Result(T value) : base(true, Error.None)
     {
         _value = value;
     }
-    
-    private Result(Error error): base(false, error)
+
+    private Result(Error error) : base(false, error)
     {
         _value = default!;
     }
