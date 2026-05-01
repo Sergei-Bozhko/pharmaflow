@@ -398,3 +398,32 @@ dotnet_naming_symbols.async_methods.required_modifiers = async
 
 dotnet_naming_style.ends_with_async.required_suffix = Async
 dotnet_naming_style.ends_with_async.capitalization = pascal_case
+
+  # ============================================================================
+  # Code analysis severities — project-wide overrides                                                                       
+  # ============================================================================                                          
+                                                                                                                            
+  # CA1716: Identifiers should not match reserved language keywords.      
+  # Suppressed — PharmaFlow is internal application code (not a public CLS                                                  
+  # library), so cross-language consumer ergonomics (VB/F#) do not apply.                                                 
+  # Result/Error pattern conventionally names types `Error` (Ardalis.Result,
+  # ErrorOr, FluentResults all do the same).
+  dotnet_diagnostic.CA1716.severity = none
+
+  # CA1000: Do not declare static members on generic types.
+  # Suppressed — the Result<T> pattern requires static factories + implicit
+  # conversion operators on the generic type. Callers writing
+  # `Result<Study>.Success(study)` is intentional and idiomatic for this pattern
+  # (see FluentResults, ErrorOr).
+  dotnet_diagnostic.CA1000.severity = none
+
+  # ============================================================================
+  # Test-only diagnostic overrides                                              
+  # ============================================================================
+  [tests/**/*.cs]                          
+                                                                                                                            
+  # CA1707: Identifiers should not contain underscores.                              
+  # Suppressed in tests only — the convention `Method_under_condition_yields_outcome`                                       
+  # is standard for xUnit/.NET test naming and reads as a sentence in test runner
+  # output. Production code keeps CA1707 enforced (no underscores there).                                                   
+  dotnet_diagnostic.CA1707.severity = none
