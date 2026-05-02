@@ -60,6 +60,16 @@ public class EntityTests
     }
 
     [Fact]
+    public void Two_entities_with_different_Id_are_not_equal()
+    {
+        var a = new TestEntity(StudyId.New());
+        var b = new TestEntity(StudyId.New());
+
+        Assert.False(a.Equals(b));
+        Assert.False(a == b);
+    }
+
+    [Fact]
     public void Entity_compared_to_null_is_not_equal()
     {
         var entity = new TestEntity();
