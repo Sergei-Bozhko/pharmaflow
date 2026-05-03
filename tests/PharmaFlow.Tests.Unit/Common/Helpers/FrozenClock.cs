@@ -4,5 +4,5 @@ namespace PharmaFlow.Tests.Unit.Common.Helpers;
 
 public sealed class FrozenClock(DateTimeOffset frozenAt) : IClock
 {
-    public DateTimeOffset UtcNow => frozenAt;
+    public DateTimeOffset UtcNow { get; } = frozenAt;
 }
