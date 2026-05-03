@@ -1,0 +1,8 @@
+using PharmaFlow.Domain.Common;
+
+namespace PharmaFlow.Tests.Unit.Common.Helpers;
+
+public sealed class FrozenClock(DateTimeOffset frozenAt) : IClock
+{
+    public DateTimeOffset UtcNow { get; } = frozenAt;
+}
