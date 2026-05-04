@@ -69,7 +69,7 @@ public sealed partial class Site : Entity<SiteId>
             return Error.Validation(
                 "site.country.invalid",
                 $"Invalid Country code: {country}."
-            ); 
+            );
         }
 
         if (studyId == StudyId.Empty)
