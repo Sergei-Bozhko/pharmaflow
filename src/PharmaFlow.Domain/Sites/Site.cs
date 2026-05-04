@@ -1,0 +1,179 @@
+using System.Text.RegularExpressions;
+
+using PharmaFlow.Domain.Common;
+using PharmaFlow.Domain.Common.Ids;
+using PharmaFlow.Domain.Sites.Events;
+
+namespace PharmaFlow.Domain.Sites;
+
+public sealed partial class Site : Entity<SiteId>
+{
+    public SiteId SiteId { get; private set; }
+    public string SiteNumber { get; private set; } = default!;
+    public string Name { get; private set; } = default!;
+    public string Country { get; private set; } = default!;
+    public UserId PrincipalInvestigatorUserId { get; private set; }
+    public DateTimeOffset? ActivationDate { get; private set; }
+    public SiteStatus Status { get; private set; }
+
+    private Site() { }
+
+    private Site(
+        SiteId id,
+        string siteNumber,
+        string name,
+        string country,
+        UserId principalInvestigatorUserId,
+        DateTimeOffset? activationDate,
+        SiteStatus status
+    ) : base(id)
+    {
+        SiteNumber = siteNumber;
+        Name = name;
+        Country = country;
+        PrincipalInvestigatorUserId = principalInvestigatorUserId;
+        ActivationDate = activationDate;
+        Status = status;
+    }
+
+    public static Result<Site> Create(
+        SiteId id,
+        StudyId studyId,
+        string siteNumber,
+        string name,
+        string country,
+        UserId principalInvestigatorUserId,
+        IClock clock
+        )
+    {
+        if (string.IsNullOrWhiteSpace(siteNumber) || siteNumber.Length > 20)
+        {
+            return Error.Validation(
+                "site.number.invalid",
+                "Site number must be non-empty and ≤ 20 characters."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 200)
+        {
+            return Error.Validation(
+                "site.name.invalid",
+                "Site name must be non-empty and ≤ 200 characters."
+            );
+        }
+
+        if (!CountryCodeRegex().IsMatch(country))
+        {
+            return Error.Validation(
+                "site.country.invalid",
+                $"Invalid Country code: {country}."
+            ); 
+        }
+
+        if (studyId == StudyId.Empty)
+        {
+            return Error.Validation(
+                "site.study_id.required",
+                "StudyId is required."
+            );
+        }
+
+        if (principalInvestigatorUserId == UserId.Empty)
+        {
+            return Error.Validation(
+                "site.pi_user_id.required",
+                "Principal investigator is required."
+            );
+        }
+
+        var site = new Site(
+            id,
+            siteNumber,
+            name,
+            country,
+            principalInvestigatorUserId,
+            null,
+            SiteStatus.Selected
+        );
+        site.Raise(new SiteCreated(id, studyId, clock.UtcNow));
+        return site;
+    }
+
+    public Result Qualify()
+    {
+        Status = SiteStatus.Qualified;
+        return Result.Success();
+    }
+
+    public Result Initiate()
+    {
+        Status = SiteStatus.Initiated;
+        return Result.Success();
+    }
+
+    public Result Activate(
+        SignatureMeta sponsorSignature,
+        SignatureMeta investigatorSignature,
+        IClock clock)
+    {
+        if (Status != SiteStatus.Initiated)
+        {
+            return Error.Conflict(
+                "site.transition.invalid",
+                $"Cannot activate a Site with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(sponsorSignature.Reason)
+            || string.IsNullOrWhiteSpace(investigatorSignature.Reason))
+        {
+            return Error.Validation(
+                "site.activate.signature_reason_required",
+                "Both activation signatures must include a non-empty reason."
+            );
+        }
+
+        Status = SiteStatus.Active;
+        ActivationDate = clock.UtcNow;
+        Raise(new SiteActivated(Id, sponsorSignature, investigatorSignature, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Close(
+        SignatureMeta signature,
+        string reason,
+        IClock clock)
+    {
+        if (Status != SiteStatus.Active)
+        {
+            return Error.Conflict(
+                "site.transition.invalid",
+                $"Cannot close a Site with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Validation(
+                "site.close.reason_required",
+                "Reason must be non-empty string."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(signature.Reason))
+        {
+            return Error.Validation(
+                "site.close.signature_reason_required",
+                "Closing signature must include a non-empty reason."
+            );
+        }
+
+        Status = SiteStatus.Closed;
+        Raise(new SiteClosed(Id, reason, signature, clock.UtcNow));
+        return Result.Success();
+
+    }
+
+    [GeneratedRegex("^[A-Z]{2}$")]
+    private static partial Regex CountryCodeRegex();
+}
