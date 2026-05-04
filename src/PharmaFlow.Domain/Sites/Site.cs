@@ -8,7 +8,7 @@ namespace PharmaFlow.Domain.Sites;
 
 public sealed partial class Site : Entity<SiteId>
 {
-    public SiteId SiteId { get; private set; }
+    public StudyId StudyId { get; private set; }
     public string SiteNumber { get; private set; } = default!;
     public string Name { get; private set; } = default!;
     public string Country { get; private set; } = default!;
@@ -20,6 +20,7 @@ public sealed partial class Site : Entity<SiteId>
 
     private Site(
         SiteId id,
+        StudyId studyId,
         string siteNumber,
         string name,
         string country,
@@ -28,6 +29,7 @@ public sealed partial class Site : Entity<SiteId>
         SiteStatus status
     ) : base(id)
     {
+        StudyId = studyId;
         SiteNumber = siteNumber;
         Name = name;
         Country = country;
@@ -88,6 +90,7 @@ public sealed partial class Site : Entity<SiteId>
 
         var site = new Site(
             id,
+            studyId,
             siteNumber,
             name,
             country,
@@ -101,6 +104,14 @@ public sealed partial class Site : Entity<SiteId>
 
     public Result Qualify()
     {
+        if (Status != SiteStatus.Selected)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot qualify a Study with status {Status}."
+            );
+        }
+
         Status = SiteStatus.Qualified;
         return Result.Success();
     }
@@ -160,7 +171,7 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(signature.Reason))
+        if (signature is null || string.IsNullOrWhiteSpace(signature.Reason))
         {
             return Error.Validation(
                 "site.close.signature_reason_required",
