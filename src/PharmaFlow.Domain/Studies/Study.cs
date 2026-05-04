@@ -78,7 +78,7 @@ public sealed class Study : Entity<StudyId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(therapeuticArea) || therapeuticArea.Length > 200)
+        if (string.IsNullOrWhiteSpace(therapeuticArea) || therapeuticArea.Length > 100)
         {
             return Error.Validation(
                 "study.therapeutic_area.invalid",
