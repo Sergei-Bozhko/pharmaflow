@@ -41,7 +41,7 @@ public sealed class Study : Entity<StudyId>
         Status = StudyStatus.Draft;
     }
 
-    public static Result<Study> Create (
+    public static Result<Study> Create(
         StudyId id,
         string protocolNumber,
         string title,
@@ -133,9 +133,9 @@ public sealed class Study : Entity<StudyId>
             return Error.Conflict(
                 "study.transition.invalid",
                 $"Cannot submit a Study with status {Status} for approval."
-            );    
+            );
         }
-        
+
         Status = StudyStatus.PendingApproval;
         return Result.Success();
     }
