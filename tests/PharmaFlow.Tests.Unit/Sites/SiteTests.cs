@@ -195,6 +195,42 @@ public class SiteTests
         Assert.Equal(ErrorType.Conflict, result.Error.ErrorType);
     }
 
+    [Fact]
+    public void Initiate_from_Selected_returns_Conflict()
+    {
+        var site = NewValidSite();
+
+        var result = site.Initiate();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Conflict, result.Error.ErrorType);
+        Assert.Equal("site.transition.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void Initiate_from_Active_returns_Conflict()
+    {
+        var site = SiteInActive();
+
+        var result = site.Initiate();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Conflict, result.Error.ErrorType);
+        Assert.Equal("site.transition.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void Qualify_from_Initiated_returns_Conflict()
+    {
+        var site = SiteInInitiated();
+
+        var result = site.Qualify();
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Conflict, result.Error.ErrorType);
+        Assert.Equal("site.transition.invalid", result.Error.Code);
+    }
+
     // --- Validation on lifecycle ---
 
     [Fact]
@@ -208,6 +244,20 @@ public class SiteTests
 
         Assert.True(result.IsFailure);
         Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+    }
+
+    [Fact]
+    public void Activate_with_empty_investigator_signature_reason_returns_Validation()
+    {
+        var site = SiteInInitiated();
+        var sponsor = ValidSignature("Sponsor sign");
+        var pi = new SignatureMeta(SignatureId.New(), UserId.New(), Clock.UtcNow, "  ");
+
+        var result = site.Activate(sponsor, pi, Clock);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("site.activate.signature_reason_required", result.Error.Code);
     }
 
     [Fact]
