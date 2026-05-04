@@ -125,4 +125,118 @@ public sealed class Study : Entity<StudyId>
         study.Raise(new StudyCreated(id, clock.UtcNow));
         return study;
     }
+
+    public Result SubmitForApproval()
+    {
+        if (Status != StudyStatus.Draft)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot submit a Study with status {Status} for approval."
+            );    
+        }
+        
+        Status = StudyStatus.PendingApproval;
+        return Result.Success();
+    }
+
+    public Result Activate(SignatureMeta signature, IClock clock)
+    {
+        if (Status != StudyStatus.PendingApproval)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot activate a Study with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(signature.Reason))
+        {
+            return Error.Validation(
+                "study.activate.signature_reason_required",
+                "Activation signature must include a non-empty reason."
+            );
+        }
+
+        Status = StudyStatus.Active;
+        Raise(new StudyActivated(Id, signature, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Suspend(SignatureMeta signature, string reason, IClock clock)
+    {
+        if (Status != StudyStatus.Active)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot suspend a Study with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Validation(
+                "study.suspend.reason_required",
+                "Suspension reason must be non-empty."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(signature.Reason))
+        {
+            return Error.Validation(
+                "study.suspend.signature_reason_required",
+                "Suspension signature must include a non-empty reason."
+            );
+        }
+
+        Status = StudyStatus.Suspended;
+        Raise(new StudySuspended(Id, reason, signature, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Close(SignatureMeta signature, string reason, IClock clock)
+    {
+        if (Status != StudyStatus.Active && Status != StudyStatus.Suspended)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot close a Study with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Validation(
+                "study.close.reason_required",
+                "Closure reason must be non-empty."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(signature.Reason))
+        {
+            return Error.Validation(
+                "study.close.signature_reason_required",
+                "Closure signature must include a non-empty reason."
+            );
+        }
+
+        Status = StudyStatus.Closed;
+        Raise(new StudyClosed(Id, reason, signature, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Archive(IClock clock)
+    {
+        if (Status != StudyStatus.Closed)
+        {
+            return Error.Conflict(
+                "study.transition.invalid",
+                $"Cannot archive a Study with status {Status}."
+            );
+        }
+
+        Status = StudyStatus.Archived;
+        Raise(new StudyArchived(Id, clock.UtcNow));
+        return Result.Success();
+    }
 }
