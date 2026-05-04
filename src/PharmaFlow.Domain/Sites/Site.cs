@@ -24,9 +24,7 @@ public sealed partial class Site : Entity<SiteId>
         string siteNumber,
         string name,
         string country,
-        UserId principalInvestigatorUserId,
-        DateTimeOffset? activationDate,
-        SiteStatus status
+        UserId principalInvestigatorUserId
     ) : base(id)
     {
         StudyId = studyId;
@@ -34,8 +32,8 @@ public sealed partial class Site : Entity<SiteId>
         Name = name;
         Country = country;
         PrincipalInvestigatorUserId = principalInvestigatorUserId;
-        ActivationDate = activationDate;
-        Status = status;
+        ActivationDate = null;
+        Status = SiteStatus.Selected;
     }
 
     public static Result<Site> Create(
@@ -64,7 +62,7 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
-        if (!CountryCodeRegex().IsMatch(country))
+        if (!(country.Length == 2 && country.All(char.IsAsciiLetterUpper)))
         {
             return Error.Validation(
                 "site.country.invalid",
@@ -94,9 +92,7 @@ public sealed partial class Site : Entity<SiteId>
             siteNumber,
             name,
             country,
-            principalInvestigatorUserId,
-            null,
-            SiteStatus.Selected
+            principalInvestigatorUserId
         );
         site.Raise(new SiteCreated(id, studyId, clock.UtcNow));
         return site;
@@ -107,8 +103,8 @@ public sealed partial class Site : Entity<SiteId>
         if (Status != SiteStatus.Selected)
         {
             return Error.Conflict(
-                "study.transition.invalid",
-                $"Cannot qualify a Study with status {Status}."
+                "site.transition.invalid",
+                $"Cannot qualify a Site with status {Status}."
             );
         }
 
@@ -118,6 +114,14 @@ public sealed partial class Site : Entity<SiteId>
 
     public Result Initiate()
     {
+        if (Status != SiteStatus.Qualified)
+        {
+            return Error.Conflict(
+                "site.transition.invalid",
+                $"Cannot initiate a Site with status {Status}."
+            );
+        }
+
         Status = SiteStatus.Initiated;
         return Result.Success();
     }
@@ -135,7 +139,8 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(sponsorSignature.Reason)
+        if (sponsorSignature is null || investigatorSignature is null
+            || string.IsNullOrWhiteSpace(sponsorSignature.Reason)
             || string.IsNullOrWhiteSpace(investigatorSignature.Reason))
         {
             return Error.Validation(
@@ -163,14 +168,6 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(reason))
-        {
-            return Error.Validation(
-                "site.close.reason_required",
-                "Reason must be non-empty string."
-            );
-        }
-
         if (signature is null || string.IsNullOrWhiteSpace(signature.Reason))
         {
             return Error.Validation(
@@ -179,12 +176,16 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Validation(
+                "site.close.reason_required",
+                "Reason must be non-empty string."
+            );
+        }
+
         Status = SiteStatus.Closed;
         Raise(new SiteClosed(Id, reason, signature, clock.UtcNow));
         return Result.Success();
-
     }
-
-    [GeneratedRegex("^[A-Z]{2}$")]
-    private static partial Regex CountryCodeRegex();
 }
