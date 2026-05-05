@@ -7,6 +7,6 @@ public sealed record RoleAssigned(
     RoleAssignmentId RoleAssignmentId,
     UserId UserId,
     Role Role,
-    SignatureId AssignedBy,
+    SignatureId AssignedBySignatureId,
     DateTimeOffset OccurredAt
 ) : IDomainEvent;

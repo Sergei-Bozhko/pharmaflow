@@ -47,17 +47,17 @@ public sealed partial class User : Entity<UserId>
         {
             return Error.Validation(
                 "user.username.invalid",
-                "Username is invalid. It should: - begin with letter; -be between 3 and 40 chars."
+                "Username must be 3–40 characters, lowercase letters, digits, '.', '_', '-'."
             );
         }
 
-        if (string.IsNullOrWhiteSpace(email) ||
-            !email.Contains('@') ||
+        var atIndex = email.IndexOf('@');
+        if (atIndex <= 0 || atIndex >= email.Length - 1 ||
             email.Length > 256)
         {
             return Error.Validation(
                 "user.email.invalid",
-                "Email is invalid. It should: - has '@'; -be less then 256 chars."
+                "Email must contain '@' and be at most 256 characters."
             );
         }
 
@@ -162,8 +162,9 @@ public sealed partial class User : Entity<UserId>
                 "Reason must be non-empty string."
             );
         }
+        var previousStatus = Status;
         Status = UserStatus.Deactivated;
-        Raise(new UserDeactivated(Id, reason, clock.UtcNow));
+        Raise(new UserDeactivated(Id, previousStatus, reason, clock.UtcNow));
         return Result.Success();
     }
 
@@ -173,7 +174,7 @@ public sealed partial class User : Entity<UserId>
         {
             return Error.Conflict(
                 "user.transition.invalid",
-                $"Cannot Enroll MFA for a user with status {Status}."
+                $"Cannot enrol MFA for a user with status {Status}."
             );
         }
 

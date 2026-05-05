@@ -45,6 +45,13 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
             );
         }
 
+        if (scope is null)
+        {
+            return Error.Validation(
+                "role_assignment.scope.required",
+                "Scope must not be null.");
+        }
+
         if (assignedBySignatureId == SignatureId.Empty)
         {
             return Error.Validation(
@@ -70,19 +77,19 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
 
     public Result End(SignatureId endingSignatureId, IClock clock)
     {
-        if (endingSignatureId == SignatureId.Empty)
-        {
-            return Error.Validation(
-                "role_assignment.ending_signature_id.required",
-                "SignatureId should not be empty."
-            );
-        }
-
         if (EndedAt != null)
         {
             return Error.Conflict(
                 "role_assignment.transition.invalid",
                 "Role assignment has already ended."
+            );
+        }
+
+        if (endingSignatureId == SignatureId.Empty)
+        {
+            return Error.Validation(
+                "role_assignment.ending_signature_id.required",
+                "SignatureId should not be empty."
             );
         }
 
