@@ -144,6 +144,39 @@ public class ParticipantTests
         Assert.Equal("participant.initials.invalid", result.Error.Code);
     }
 
+    [Fact]
+    public void Create_rejects_null_SubjectNumber_returns_Validation()
+    {
+        var result = Participant.Create(
+            ParticipantId.New(), SiteId.New(), subjectNumber: null!, 1990, Sex.Female, "ABC", Clock);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("participant.subject_number.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void Create_rejects_whitespace_SubjectNumber_returns_Validation()
+    {
+        var result = Participant.Create(
+            ParticipantId.New(), SiteId.New(), "   ", 1990, Sex.Female, "ABC", Clock);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("participant.subject_number.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void Create_rejects_undefined_Sex()
+    {
+        var result = Participant.Create(
+            ParticipantId.New(), SiteId.New(), "S-001-024", 1990, (Sex)99, "ABC", Clock);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("participant.sex.invalid", result.Error.Code);
+    }
+
     // --- Lifecycle: happy path ---
 
     [Fact]
