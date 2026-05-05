@@ -13,9 +13,9 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
     public DateTimeOffset? EndedAt { get; private set; }
     public SignatureId AssignedBySignatureId { get; private set; }
 
-    public RoleAssignment( ) { }
+    private RoleAssignment( ) { }
 
-    public RoleAssignment(
+    private RoleAssignment(
         RoleAssignmentId id,
         UserId userId,
         Role role,
@@ -41,7 +41,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         {
             return Error.Validation(
                 "role_assignment.user_id.invalid",
-                "UserId should be non be empty."
+                "UserId should not be empty."
             );
         }
 
@@ -65,7 +65,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
             AssignedAt = clock.UtcNow,
             EndedAt = null,
         };
-        roleAssignment.Raise(new RoleAssigned(id, assignedBySignatureId, clock.UtcNow));
+        roleAssignment.Raise(new RoleAssigned(id, userId, role, assignedBySignatureId, clock.UtcNow));
         return roleAssignment;
     }
 
@@ -75,7 +75,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         {
             return Error.Validation(
                 "role_assignment.ending_signature_id.invalid",
-                "Signature should be non be empty."
+                "SignatureId should not be empty."
             );
         }
 
@@ -83,12 +83,13 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         {
             return Error.Conflict(
                 "role_assignment.ended_at.conflict",
-                "Ended at not empty already. Conflicting action."
+                "Role assignment has already ended."
             );
         }
 
-        EndedAt = clock.UtcNow;
-        Raise(new RoleAssignmentEnded(Id, endingSignatureId, clock.UtcNow));
+        var now = clock.UtcNow;
+        EndedAt = now;
+        Raise(new RoleAssignmentEnded(Id, endingSignatureId, now));
         return Result.Success();
     }
 }

@@ -63,21 +63,19 @@ public sealed partial class User : Entity<UserId>
         }
 
         if (string.IsNullOrWhiteSpace(fullName) ||
-            username.Length > 200)
+            fullName.Length > 200)
         {
             return Error.Validation(
                 "user.full_name.invalid",
-                "Full name should be less 200 chars."
+                "Full name should be less than 200 chars."
             );
         }
 
-        if (displayTitle is null ||
-            (displayTitle is not null &&
-            displayTitle.Length > 20))
+        if (displayTitle is not null && displayTitle.Length > 20)
         {
             return Error.Validation(
                 "user.display_title.invalid",
-                "Display title should be less 200 chars."
+                "Display title should be less than 20 chars."
             );
         }
 
@@ -150,7 +148,7 @@ public sealed partial class User : Entity<UserId>
 
     public Result Deactivate(string reason, IClock clock)
     {
-        if (Status != UserStatus.Active ||
+        if (Status != UserStatus.Active &&
             Status != UserStatus.Locked)
         {
             return Error.Conflict(
@@ -162,7 +160,7 @@ public sealed partial class User : Entity<UserId>
         if (string.IsNullOrWhiteSpace(reason))
         {
             return Error.Conflict(
-                "user.diactivating.reason_required",
+                "user.deactivating.reason_required",
                 "Reason must be non-empty string."
             );
         }
@@ -202,6 +200,6 @@ public sealed partial class User : Entity<UserId>
         PasswordLastChangedAt = clock.UtcNow;
     }
 
-    [GeneratedRegex("^[a-z0-9._-]\\{3,40}$")]
+    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9._-]{2,39}$")]
     private static partial Regex UserNameRegex();
 }

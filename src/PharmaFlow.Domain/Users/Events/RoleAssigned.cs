@@ -5,6 +5,8 @@ namespace PharmaFlow.Domain.Users.Events;
 
 public sealed record RoleAssigned(
     RoleAssignmentId RoleAssignmentId,
+    UserId UserId,
+    Role Role,
     SignatureId AssignedBy,
     DateTimeOffset OccurredAt
 ) : IDomainEvent;
