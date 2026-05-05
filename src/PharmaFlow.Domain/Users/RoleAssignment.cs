@@ -1,5 +1,6 @@
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
+using PharmaFlow.Domain.Users.Events;
 
 namespace PharmaFlow.Domain.Users;
 
@@ -36,6 +37,23 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         SignatureId assignedBySignatureId,
         IClock clock)
     {
+        if (userId == UserId.Empty)
+        {
+            return Error.Validation(
+                "role_assignment.user_id.invalid",
+                "UserId should be non be empty."
+            );
+        }
+
+
+        if (assignedBySignatureId == SignatureId.Empty)
+        {
+            return Error.Validation(
+                "role_assignment.assigned_by_signature_id.invalid",
+                "Signature should be non be empty."
+            );
+        }
+
         var roleAssignment = new RoleAssignment(
             id,
             userId,
@@ -45,8 +63,32 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         )
         {
             AssignedAt = clock.UtcNow,
+            EndedAt = null,
         };
-        // roleAssignment.Raise();
+        roleAssignment.Raise(new RoleAssigned(id, assignedBySignatureId, clock.UtcNow));
         return roleAssignment;
+    }
+
+    public Result End(SignatureId endingSignatureId, IClock clock)
+    {
+        if (endingSignatureId == SignatureId.Empty)
+        {
+            return Error.Validation(
+                "role_assignment.ending_signature_id.invalid",
+                "Signature should be non be empty."
+            );
+        }
+
+        if (EndedAt != null)
+        {
+            return Error.Conflict(
+                "role_assignment.ended_at.conflict",
+                "Ended at not empty already. Conflicting action."
+            );
+        }
+
+        EndedAt = clock.UtcNow;
+        Raise(new RoleAssignmentEnded(Id, endingSignatureId, clock.UtcNow));
+        return Result.Success();
     }
 }
