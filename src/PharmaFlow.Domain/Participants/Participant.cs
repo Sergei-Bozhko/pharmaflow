@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Participants.Events;
-using PharmaFlow.Domain.Sites;
 
 namespace PharmaFlow.Domain.Participants;
 
@@ -57,11 +56,11 @@ public sealed partial class Participant : Entity<ParticipantId>
             );
         }
 
-        if (!SubjectNumberRegex().IsMatch(subjectNumber))
+        if (string.IsNullOrWhiteSpace(subjectNumber) || !SubjectNumberRegex().IsMatch(subjectNumber))
         {
             return Error.Validation(
                 "participant.subject_number.invalid",
-                "Subject number must follow S-XXX-XXX format, where X - any number."
+                "Subject number must follow format S-XXX-XXX, where each X is a digit."
             );
         }
 
@@ -132,7 +131,7 @@ public sealed partial class Participant : Entity<ParticipantId>
         if (string.IsNullOrWhiteSpace(reason))
         {
             return Error.Validation(
-                "participant.failscreening.reason_required",
+                "participant.fail_screening.reason_required",
                 "Reason must be non-empty string."
             );
         }
@@ -218,8 +217,8 @@ public sealed partial class Participant : Entity<ParticipantId>
         }
 
         EnrolmentStatus = ParticipantStatus.Withdrawn;
-        WithdrawalReason = reason;
         WithdrawalDate = withdrawalDate;
+        WithdrawalReason = reason;
         Raise(new ParticipantWithdrawn(Id, withdrawalDate, reason, clock.UtcNow));
         return Result.Success();
     }
