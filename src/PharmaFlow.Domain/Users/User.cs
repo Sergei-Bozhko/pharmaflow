@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
+using PharmaFlow.Domain.Users.Events;
 
 namespace PharmaFlow.Domain.Users;
 
@@ -93,8 +94,112 @@ public sealed partial class User : Entity<UserId>
             MfaEnrolled = false,
             FailedLoginCount = 0,
         };
-        // user.Raise(new UserCreated)
+        user.Raise(new UserCreated(id, clock.UtcNow));
         return user;
+    }
+
+    public Result Activate(IClock clock)
+    {
+        if (Status != UserStatus.Invited)
+        {
+            return Error.Conflict(
+                "user.transition.invalid",
+                $"Cannot Activate a user with status {Status}."
+            );
+        }
+        Status = UserStatus.Active;
+        Raise(new UserActivated(Id, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Lock(string reason, IClock clock)
+    {
+        if (Status != UserStatus.Active)
+        {
+            return Error.Conflict(
+                "user.transition.invalid",
+                $"Cannot Lock a user with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Conflict(
+                "user.Locking.reason_required",
+                "Reason must be non-empty string."
+            );
+        }
+        Status = UserStatus.Locked;
+        Raise(new UserLocked(Id, reason, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Unlock(IClock clock)
+    {
+        if (Status != UserStatus.Locked)
+        {
+            return Error.Conflict(
+                "user.transition.invalid",
+                $"Cannot Unlock a user with status {Status}."
+            );
+        }
+        Status = UserStatus.Active;
+        Raise(new UserUnlocked(Id, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result Deactivate(string reason, IClock clock)
+    {
+        if (Status != UserStatus.Active ||
+            Status != UserStatus.Locked)
+        {
+            return Error.Conflict(
+                "user.transition.invalid",
+                $"Cannot deactivate a user with status {Status}."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Error.Conflict(
+                "user.diactivating.reason_required",
+                "Reason must be non-empty string."
+            );
+        }
+        Status = UserStatus.Deactivated;
+        Raise(new UserDeactivated(Id, reason, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public Result EnrolMfa(IClock clock)
+    {
+        if (Status != UserStatus.Active)
+        {
+            return Error.Conflict(
+                "user.transition.invalid",
+                $"Cannot Enroll MFA a user with status {Status}."
+            );
+        }
+        Status = UserStatus.Active;
+        MfaEnrolled = true;
+        Raise(new UserMfaEnrolled(Id, clock.UtcNow));
+        return Result.Success();
+    }
+
+    public void RecordSuccessfulLogin(IClock clock)
+    {
+        LastLoginAt = clock.UtcNow;
+        FailedLoginCount = 0;
+    }
+
+    public void RecordFailedLogin()
+    {
+        FailedLoginCount++;
+    }
+
+    public void RecordPasswordChange(IClock clock)
+    {
+        PasswordLastChangedAt = clock.UtcNow;
     }
 
     [GeneratedRegex("^[a-z0-9._-]\\{3,40}$")]
