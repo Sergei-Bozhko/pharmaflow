@@ -13,7 +13,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
     public DateTimeOffset? EndedAt { get; private set; }
     public SignatureId AssignedBySignatureId { get; private set; }
 
-    private RoleAssignment( ) { }
+    private RoleAssignment() { }
 
     private RoleAssignment(
         RoleAssignmentId id,
