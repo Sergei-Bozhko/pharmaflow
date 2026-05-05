@@ -29,7 +29,6 @@ public sealed partial class Participant : Entity<ParticipantId>
         string? initials,
         int yearOfBirth,
         Sex sex,
-        DateOnly? enrolmentDate,
         ParticipantStatus enrolmentStatus
     ) : base(id)
     {
@@ -39,7 +38,6 @@ public sealed partial class Participant : Entity<ParticipantId>
         YearOfBirth = yearOfBirth;
         Sex = sex;
         EnrolmentStatus = enrolmentStatus;
-        EnrolmentDate = enrolmentDate;
     }
 
     public static Result<Participant> Create(
@@ -51,7 +49,7 @@ public sealed partial class Participant : Entity<ParticipantId>
         string? initials,
         IClock clock)
     {
-        if (siteId != SiteId.Empty)
+        if (siteId == SiteId.Empty)
         {
             return Error.Validation(
                 "participant.site_id.required",
@@ -71,7 +69,7 @@ public sealed partial class Participant : Entity<ParticipantId>
         {
             return Error.Validation(
                 "participant.year_of_birth.invalid",
-                "Participant must be older then 18. Can't use year < 1900."
+                "Participant must be older than 18. Can't use year < 1900."
             );
         }
 
@@ -84,17 +82,14 @@ public sealed partial class Participant : Entity<ParticipantId>
         }
 
         if (initials is not null &&
-            initials.Length > 3 &&
-            !initials.All(char.IsAsciiLetterUpper)
-            )
+            (initials.Length > 3 ||
+            !initials.All(char.IsAsciiLetterUpper)))
         {
             return Error.Validation(
                 "participant.initials.invalid",
                 "Participant initials is not valid."
             );
-
         }
-
         var participant = new Participant(
             id,
             siteId,
@@ -102,7 +97,6 @@ public sealed partial class Participant : Entity<ParticipantId>
             initials,
             yearOfBirth,
             sex,
-            DateOnly.FromDateTime(clock.UtcNow.Date),
             ParticipantStatus.Prospective
         );
         participant.Raise(new ParticipantCreated(id, clock.UtcNow));
@@ -225,6 +219,7 @@ public sealed partial class Participant : Entity<ParticipantId>
 
         EnrolmentStatus = ParticipantStatus.Withdrawn;
         WithdrawalReason = reason;
+        WithdrawalDate = withdrawalDate;
         Raise(new ParticipantWithdrawn(Id, withdrawalDate, reason, clock.UtcNow));
         return Result.Success();
     }
