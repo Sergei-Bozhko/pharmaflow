@@ -40,17 +40,16 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         if (userId == UserId.Empty)
         {
             return Error.Validation(
-                "role_assignment.user_id.invalid",
+                "role_assignment.user_id.required",
                 "UserId should not be empty."
             );
         }
 
-
         if (assignedBySignatureId == SignatureId.Empty)
         {
             return Error.Validation(
-                "role_assignment.assigned_by_signature_id.invalid",
-                "Signature should be non be empty."
+                "role_assignment.assigned_by_signature_id.required",
+                "Signature must not be empty."
             );
         }
 
@@ -74,7 +73,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         if (endingSignatureId == SignatureId.Empty)
         {
             return Error.Validation(
-                "role_assignment.ending_signature_id.invalid",
+                "role_assignment.ending_signature_id.required",
                 "SignatureId should not be empty."
             );
         }
@@ -82,7 +81,7 @@ public sealed class RoleAssignment : Entity<RoleAssignmentId>
         if (EndedAt != null)
         {
             return Error.Conflict(
-                "role_assignment.ended_at.conflict",
+                "role_assignment.transition.invalid",
                 "Role assignment has already ended."
             );
         }

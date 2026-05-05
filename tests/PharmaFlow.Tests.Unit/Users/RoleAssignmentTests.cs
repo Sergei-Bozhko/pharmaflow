@@ -65,7 +65,7 @@ public class RoleAssignmentTests
 
         Assert.True(result.IsFailure);
         Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
-        Assert.Equal("role_assignment.signature_id.required", result.Error.Code);
+        Assert.Equal("role_assignment.assigned_by_signature_id.required", result.Error.Code);
     }
 
     // --- Lifecycle: End ---

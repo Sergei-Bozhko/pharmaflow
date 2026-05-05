@@ -18,15 +18,14 @@ public sealed partial class User : Entity<UserId>
     public int FailedLoginCount { get; private set; }
     public DateTimeOffset? PasswordLastChangedAt { get; private set; } = default!;
 
-    public User() { }
+    private User() { }
 
-    public User(
+    private User(
         UserId id,
         string username,
         string email,
         string fullName,
-        string? displayTitle,
-        IClock clock
+        string? displayTitle
     ) : base(id)
     {
         Username = username;
@@ -48,7 +47,7 @@ public sealed partial class User : Entity<UserId>
         {
             return Error.Validation(
                 "user.username.invalid",
-                "Username is invalid. It should:\n- begin with letter;\n-be between 3 and 40 chars."
+                "Username is invalid. It should: - begin with letter; -be between 3 and 40 chars."
             );
         }
 
@@ -58,7 +57,7 @@ public sealed partial class User : Entity<UserId>
         {
             return Error.Validation(
                 "user.email.invalid",
-                "Email is invalid. It should:\n- has '@';\n-be less then 256 chars."
+                "Email is invalid. It should: - has '@'; -be less then 256 chars."
             );
         }
 
@@ -84,8 +83,7 @@ public sealed partial class User : Entity<UserId>
             username,
             email,
             fullName,
-            displayTitle,
-            clock
+            displayTitle
         )
         {
             Status = UserStatus.Invited,
@@ -122,8 +120,8 @@ public sealed partial class User : Entity<UserId>
 
         if (string.IsNullOrWhiteSpace(reason))
         {
-            return Error.Conflict(
-                "user.Locking.reason_required",
+            return Error.Validation(
+                "user.lock.reason_required",
                 "Reason must be non-empty string."
             );
         }
@@ -159,8 +157,8 @@ public sealed partial class User : Entity<UserId>
 
         if (string.IsNullOrWhiteSpace(reason))
         {
-            return Error.Conflict(
-                "user.deactivating.reason_required",
+            return Error.Validation(
+                "user.deactivate.reason_required",
                 "Reason must be non-empty string."
             );
         }
@@ -175,10 +173,10 @@ public sealed partial class User : Entity<UserId>
         {
             return Error.Conflict(
                 "user.transition.invalid",
-                $"Cannot Enroll MFA a user with status {Status}."
+                $"Cannot Enroll MFA for a user with status {Status}."
             );
         }
-        Status = UserStatus.Active;
+
         MfaEnrolled = true;
         Raise(new UserMfaEnrolled(Id, clock.UtcNow));
         return Result.Success();
@@ -200,6 +198,6 @@ public sealed partial class User : Entity<UserId>
         PasswordLastChangedAt = clock.UtcNow;
     }
 
-    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9._-]{2,39}$")]
+    [GeneratedRegex("^[a-z0-9._-]{3,40}$")]
     private static partial Regex UserNameRegex();
 }
