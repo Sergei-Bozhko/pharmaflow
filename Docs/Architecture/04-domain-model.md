@@ -1,6 +1,6 @@
 # 04 — Domain Model
 
-The shapes inside `PharmaFlow.Domain` after Sprint 2 lands. Source: spec §3 (entities), §9.1 (patterns), §10.1–§10.3 (typed IDs + base entity), and the Sprint 2 ticket detail (`PFL-014` / `015` / `016` / `019`–`023`).
+The shapes inside `PharmaFlow.Domain` as of Sprint 2 close (2026-05-06). Source: spec §3 (entities), §9.1 (patterns), §10.1–§10.3 (typed IDs + base entity), and the Sprint 2 ticket detail (`PFL-014` / `015` / `016` / `019`–`023`).
 
 This is **structural**, not behavioural — methods on aggregates are sketched, not exhaustive. Sprint 2 builds the empty shells + invariants; subsequent sprints fill in document/consent/auth flows.
 
@@ -125,6 +125,35 @@ classDiagram
     AuditEventId ..|> IStronglyTypedId~long~
 
     %% =========================================================
+    %% Value objects (PFL-019, PFL-022)
+    %% =========================================================
+
+    class SignatureMeta {
+        <<record>>
+        +SignatureId Id
+        +UserId SignerUserId
+        +DateTimeOffset SignedAt
+        +string Reason
+    }
+    class Scope {
+        <<record>>
+        +ScopeKind Kind
+        +StudyId? StudyId
+        +SiteId? SiteId
+        +System() Scope$
+        +ForStudy(StudyId) Scope$
+        +ForSite(SiteId) Scope$
+    }
+    class ScopeKind {
+        <<enum>>
+        System
+        Study
+        Site
+    }
+
+    Scope ..> ScopeKind : Kind
+
+    %% =========================================================
     %% Aggregates inheriting Entity (PFL-019..022)
     %% =========================================================
 
@@ -139,7 +168,7 @@ classDiagram
         +PlannedEndDate
         +StudyStatus Status
         +Create(...) ResultT~Study~$
-        +Approve()
+        +SubmitForApproval()
         +Activate(SignatureMeta)
         +Suspend(reason)
         +Close(reason)
@@ -185,11 +214,12 @@ classDiagram
     class RoleAssignment {
         +UserId UserId
         +Role Role
-        +RoleScope Scope
+        +Scope Scope
         +DateTimeOffset AssignedAt
         +DateTimeOffset? EndedAt
-        +SignatureId AssignedBy
-        +End(reason)
+        +SignatureId AssignedBySignatureId
+        +SignatureId? EndedBySignatureId
+        +End(SignatureId, IClock)
     }
 
     Study --|> EntityT~TId~
@@ -201,6 +231,7 @@ classDiagram
     Site "many" --o "1" Study : StudyId
     Participant "many" --o "1" Site : SiteId
     RoleAssignment "many" --o "1" User : UserId
+    RoleAssignment "1" *-- "1" Scope : owns
 
     %% =========================================================
     %% Append-only types — NO Entity inheritance (PFL-023)
@@ -211,15 +242,15 @@ classDiagram
         +AuditEventId Id
         +DateTimeOffset OccurredAt
         +UserId ActorUserId
-        +Role ActorRoleAtTime
-        +EventType EventType
+        +string ActorRoleAtTime
+        +AuditEventType EventType
         +string TargetEntityType
-        +Guid TargetEntityId
-        +string BeforeStateJson
-        +string AfterStateJson
-        +string ReasonForChange
+        +string TargetEntityId
+        +string? BeforeStateJson
+        +string? AfterStateJson
+        +string? ReasonForChange
         +string EventPayloadHash
-        +string PreviousEventHash
+        +string? PreviousEventHash
     }
     class SignatureRecord {
         <<append-only class>>
@@ -228,12 +259,12 @@ classDiagram
         +DateTimeOffset SignedAt
         +SignatureMeaning Meaning
         +string TargetEntityType
-        +Guid TargetEntityId
+        +string TargetEntityId
         +string TargetVersionOrHash
         +string ReasonStatement
-        +AuthMethod AuthenticationMethod
+        +AuthenticationMethod AuthenticationMethod
         +string SignaturePayloadHash
-        +string PreviousSignatureHash
+        +string? PreviousSignatureHash
     }
 
     %% =========================================================
@@ -270,7 +301,7 @@ classDiagram
 ## What this diagram deliberately omits
 
 - **Methods are illustrative, not exhaustive.** Each aggregate ticket (PFL-019..023) has the full method list + state-machine table.
-- **Value objects** (`SignatureMeta`, `Address`, `ContactInfo`) — not yet defined; will land alongside the aggregate that first needs them.
+- **Value objects shipped Sprint 2:** `SignatureMeta` (PFL-019, used by `Study.Activate(SignatureMeta)`) and `Scope` (PFL-022, owned by `RoleAssignment`) — both included in the diagram above. **Still deferred:** `Address`, `ContactInfo` will land alongside the aggregate that first needs them.
 - **`Document`, `DocumentVersion`, `ConsentRecord`, `ProtocolDeviation`** — deferred to feature sprints (7 / 8 / 9 / v1.5). Placeholder boxes show they're known-shape, not unknown.
 - **EF Core mappings** — not domain. Sprint 3 documents in `Docs/Architecture/05-persistence.md` (future).
 - **Mediator request/handler shapes** — not domain. Sprint 4 documents in `Docs/Architecture/06-cqrs-pipeline.md` (future).

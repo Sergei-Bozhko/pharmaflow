@@ -3,10 +3,7 @@
 > Clinical-trial study tracker — portfolio simulation on .NET 10 + Azure.
 
 [![CI](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml)
-![Build](https://img.shields.io/badge/build-pending-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT_(tbc)-lightgrey)
-
-<!-- CI badge replaced by the real GitHub Actions badge in PFL-010. -->
 
 ## What this is
 
@@ -76,6 +73,7 @@ Honest framing: the project proves I can implement the controls correctly and re
 |---|---|
 | Technical Specification | [`Docs/PharmaFlow — Technical Specification.md`](<Docs/PharmaFlow — Technical Specification.md>) |
 | Architecture Decision Records | [`Docs/ADRs/`](Docs/ADRs/) |
+| Architecture diagrams (C4) | [`Docs/Architecture/`](Docs/Architecture/) |
 
 ## License
 
