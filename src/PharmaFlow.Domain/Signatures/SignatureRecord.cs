@@ -13,12 +13,12 @@ public sealed class SignatureRecord
     public string TargetEntityId { get; private set; } = default!;
     public string TargetVersionOrHash { get; private set; } = default!;
     public string ReasonStatement { get; private set; } = default!;
-    public AuthenticationMethod AuthenticationMethod  { get; private set; }
-    public string SignaturePayloadHash  { get; private set; } = default!;
-    public string? PreviousSignatureHash  { get; private set; } = default!;
-    public string? ClientIp  { get; private set; } = default!;
-    public string? UserAgent  { get; private set; } = default!;
-    public string? MfaMethod  { get; private set; } = default!;
+    public AuthenticationMethod AuthenticationMethod { get; private set; }
+    public string SignaturePayloadHash { get; private set; } = default!;
+    public string? PreviousSignatureHash { get; private set; } = default!;
+    public string? ClientIp { get; private set; } = default!;
+    public string? UserAgent { get; private set; } = default!;
+    public string? MfaMethod { get; private set; } = default!;
     public bool ContinuousSession { get; private set; } = default!;
     public string? CorrelationId { get; private set; } = default!;
     public string? SigningKeyId { get; private set; } = default!;
