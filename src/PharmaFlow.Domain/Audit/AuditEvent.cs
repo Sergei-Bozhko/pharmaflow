@@ -12,13 +12,13 @@ public sealed class AuditEvent
     public AuditEventType EventType { get; private set; }
     public string TargetEntityType { get; private set; } = default!;
     public string TargetEntityId { get; private set; } = default!;
-    public string? BeforeStateJson { get; private set; } = default!;
-    public string? AfterStateJson { get; private set; } = default!;
-    public string? ReasonForChange { get; private set; } = default!;
-    public string? SourceIpAddress { get; private set; } = default!;
-    public string? ClientInfo { get; private set; } = default!;
+    public string? BeforeStateJson { get; private set; }
+    public string? AfterStateJson { get; private set; }
+    public string? ReasonForChange { get; private set; }
+    public string? SourceIpAddress { get; private set; }
+    public string? ClientInfo { get; private set; }
     public string EventPayloadHash { get; private set; } = default!;
-    public string? PreviousEventHash { get; private set; } = default!;
+    public string? PreviousEventHash { get; private set; }
 
     private AuditEvent() { }
 
@@ -66,8 +66,7 @@ public sealed class AuditEvent
         string? sourceIpAddress,
         string? clientInfo,
         string eventPayloadHash,
-        string? previousEventHash,
-        IClock clock
+        string? previousEventHash
     )
     {
         if (actorUserId == UserId.Empty)

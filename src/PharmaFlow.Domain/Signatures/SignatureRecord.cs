@@ -15,13 +15,13 @@ public sealed class SignatureRecord
     public string ReasonStatement { get; private set; } = default!;
     public AuthenticationMethod AuthenticationMethod { get; private set; }
     public string SignaturePayloadHash { get; private set; } = default!;
-    public string? PreviousSignatureHash { get; private set; } = default!;
-    public string? ClientIp { get; private set; } = default!;
-    public string? UserAgent { get; private set; } = default!;
-    public string? MfaMethod { get; private set; } = default!;
+    public string? PreviousSignatureHash { get; private set; }
+    public string? ClientIp { get; private set; }
+    public string? UserAgent { get; private set; }
+    public string? MfaMethod { get; private set; }
     public bool ContinuousSession { get; private set; } = default!;
-    public string? CorrelationId { get; private set; } = default!;
-    public string? SigningKeyId { get; private set; } = default!;
+    public string? CorrelationId { get; private set; }
+    public string? SigningKeyId { get; private set; }
 
     private SignatureRecord() { }
 
@@ -87,6 +87,22 @@ public sealed class SignatureRecord
             return Error.Validation(
                 "signature_record.signer_user_id.required",
                 "SignerUserId is required."
+            );
+        }
+
+        if (!Enum.IsDefined(meaning))
+        {
+            return Error.Validation(
+                "signature_record.meaning.invalid",
+                "Meaning is invalid."
+            );
+        }
+
+        if (!Enum.IsDefined(authenticationMethod))
+        {
+            return Error.Validation(
+                "signature_record.authentication_method.invalid",
+                "AuthenticationMethod is invalid."
             );
         }
 

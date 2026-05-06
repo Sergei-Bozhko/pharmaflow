@@ -34,8 +34,7 @@ public class AuditEventTests
             sourceIpAddress: "10.0.0.1",
             clientInfo: "Mozilla/5.0",
             eventPayloadHash: eventPayloadHash,
-            previousEventHash: null,
-            clock: Clock
+            previousEventHash: null
         );
 
     // --- Factory: happy path ---
@@ -58,8 +57,7 @@ public class AuditEventTests
             sourceIpAddress: "192.168.1.1",
             clientInfo: "Chrome/130",
             eventPayloadHash: ValidHash,
-            previousEventHash: null,
-            clock: Clock
+            previousEventHash: null
         );
 
         Assert.True(result.IsSuccess);

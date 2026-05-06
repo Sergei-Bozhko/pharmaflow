@@ -188,4 +188,50 @@ public class SignatureRecordTests
     {
         Assert.Equal(typeof(object), typeof(SignatureRecord).BaseType);
     }
+
+    [Fact]
+    public void Create_rejects_undefined_Meaning()
+    {
+        var result = SignatureRecord.Create(
+            signerUserId: UserId.New(),
+            signedAt: SignedAt,
+            meaning: (SignatureMeaning)999,
+            targetEntityType: "Study",
+            targetEntityId: "abc-123",
+            targetVersionOrHash: "v1",
+            reasonStatement: "approval",
+            authenticationMethod: AuthenticationMethod.PasswordReentry,
+            signaturePayloadHash: ValidHash,
+            previousSignatureHash: null,
+            clientIp: null, userAgent: null, mfaMethod: null,
+            continuousSession: false, correlationId: null, signingKeyId: null
+        );
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("signature_record.meaning.invalid", result.Error.Code);
+    }
+
+    [Fact]
+    public void Create_rejects_undefined_AuthenticationMethod()
+    {
+        var result = SignatureRecord.Create(
+            signerUserId: UserId.New(),
+            signedAt: SignedAt,
+            meaning: SignatureMeaning.Approved,
+            targetEntityType: "Study",
+            targetEntityId: "abc-123",
+            targetVersionOrHash: "v1",
+            reasonStatement: "approval",
+            authenticationMethod: (AuthenticationMethod)999,
+            signaturePayloadHash: ValidHash,
+            previousSignatureHash: null,
+            clientIp: null, userAgent: null, mfaMethod: null,
+            continuousSession: false, correlationId: null, signingKeyId: null
+        );
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error.ErrorType);
+        Assert.Equal("signature_record.authentication_method.invalid", result.Error.Code);
+    }
 }
