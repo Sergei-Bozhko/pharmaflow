@@ -1,6 +1,6 @@
 # 03 — Module Dependencies
 
-The seven .NET projects and their compile-time references. Source: spec §7.2 (table) + actual `.csproj` `<ProjectReference>` graph as of Sprint 1 close (2026-05-01).
+The seven .NET projects and their compile-time references. Source: spec §7.2 (table) + actual `.csproj` `<ProjectReference>` graph as of Sprint 2 close (2026-05-06).
 
 ```mermaid
 flowchart TB
@@ -48,18 +48,18 @@ flowchart TB
 | **Tests.Unit** | Domain, Application, xUnit, FluentAssertions, NSubstitute | Infrastructure, real DB |
 | **Tests.Integration** | Api, Infrastructure, `Testcontainers.PostgreSql`, xUnit | Mocking the DB |
 
-## Drift vs spec — current state (2026-05-01)
+## Drift vs spec — current state (2026-05-06)
 
 | # | Project | Drift | Why it's there | Fix horizon |
 |---|---|---|---|---|
 | 1 | **Web** | References `Infrastructure` directly (orange dashed arrow above) | PFL-004 scaffold wired Web like Api so Blazor Auto-mode prerender resolves DI in-process. Spec §7.2 expects Web ⇒ Api over HTTP. | Sprint 11 (UI polish) or Sprint 12 (final hardening). Adds a `PharmaFlow.Contracts` project at the same time, splits cleanly. |
 | 2 | **Web** | References `Domain` directly | Blazor components need typed IDs / `Result<T>` for forms. Pure read-only Domain types crossing the boundary is *less* harmful than Infrastructure crossing it. | Same horizon — when `PharmaFlow.Contracts` lands, move shared shapes there. |
 
-Both drifts are tracked here so Sprint 2 DoD's `dotnet list package` check has a known, documented exception list. New drift = new row.
+Both drifts are tracked here so the ongoing `dotnet list package` check has a known, documented exception list. New drift = new row.
 
-## Sprint 2 DoD check
+## Domain BCL-only check (ongoing)
 
-Per `Sprint-02-Backlog.md` § DoD: "No reference from `PharmaFlow.Domain` to `EFCore`, `Mediator`, ASP.NET, Mapperly, Serilog. Verify with `dotnet list package` per project (Domain should list zero — only BCL)."
+Per Sprint 2 DoD (and ongoing rule for every subsequent sprint): "No reference from `PharmaFlow.Domain` to `EFCore`, `Mediator`, ASP.NET, Mapperly, Serilog. Verify with `dotnet list package` per project (Domain should list zero — only BCL)." Confirmed clean at Sprint 2 close (2026-05-06).
 
 ```bash
 dotnet list src/PharmaFlow.Domain/PharmaFlow.Domain.csproj package
