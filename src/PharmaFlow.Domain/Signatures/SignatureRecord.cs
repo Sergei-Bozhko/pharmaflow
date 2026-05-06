@@ -19,7 +19,7 @@ public sealed class SignatureRecord
     public string? ClientIp { get; private set; }
     public string? UserAgent { get; private set; }
     public string? MfaMethod { get; private set; }
-    public bool ContinuousSession { get; private set; } = default!;
+    public bool ContinuousSession { get; private set; }
     public string? CorrelationId { get; private set; }
     public string? SigningKeyId { get; private set; }
 
