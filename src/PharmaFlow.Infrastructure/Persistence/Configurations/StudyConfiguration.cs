@@ -21,12 +21,13 @@ internal sealed class StudyConfiguration : IEntityTypeConfiguration<Study>
         b.Property(x => x.PlannedEndDate).IsRequired();
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
 
-        // Entity<TId> inherited audit columns
+        // Entity<TId> inherited audit + concurrency columns
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.CreatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.UpdatedAt).IsRequired();
         b.Property(x => x.UpdatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.IsDeleted).IsRequired();
+        b.Property(x => x.RowVersion).IsRowVersion();
 
         // Indexes
         b.HasIndex(x => x.ProtocolNumber).IsUnique();

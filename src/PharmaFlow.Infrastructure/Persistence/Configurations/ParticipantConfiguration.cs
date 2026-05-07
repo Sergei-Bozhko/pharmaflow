@@ -22,12 +22,13 @@ internal sealed class ParticipantConfiguration : IEntityTypeConfiguration<Partic
         b.Property(x => x.WithdrawalDate);
         b.Property(x => x.WithdrawalReason).HasMaxLength(500);
 
-        // Entity<TId> inherited
+        // Entity<TId> inherited audit + concurrency columns
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.CreatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.UpdatedAt).IsRequired();
         b.Property(x => x.UpdatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.IsDeleted).IsRequired();
+        b.Property(x => x.RowVersion).IsRowVersion();
 
         // Indexes
         b.HasIndex(x => x.SiteId);

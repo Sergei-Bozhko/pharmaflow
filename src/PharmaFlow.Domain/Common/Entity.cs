@@ -8,7 +8,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     public string CreatedBy { get; private set; } = default!;
     public DateTimeOffset UpdatedAt { get; private set; }
     public string UpdatedBy { get; private set; } = default!;
-    public byte[] RowVersion { get; private set; } = default!;
+    public uint RowVersion { get; private set; }
     public bool IsDeleted { get; private set; }
 
     private readonly List<IDomainEvent> _events = [];
