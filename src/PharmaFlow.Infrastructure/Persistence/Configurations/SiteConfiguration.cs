@@ -19,12 +19,13 @@ internal sealed class SiteConfiguration : IEntityTypeConfiguration<Site>
         b.Property(x => x.ActivationDate); // nullable
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
 
-        // Entity<TId> inherited
+        // Entity<TId> inherited audit + concurrency columns
         b.Property(x => x.CreatedAt).IsRequired();
         b.Property(x => x.CreatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.UpdatedAt).IsRequired();
         b.Property(x => x.UpdatedBy).HasMaxLength(40).IsRequired();
         b.Property(x => x.IsDeleted).IsRequired();
+        b.Property(x => x.RowVersion).IsRowVersion();
 
         // Indexes
         b.HasIndex(x => x.StudyId);
@@ -32,5 +33,6 @@ internal sealed class SiteConfiguration : IEntityTypeConfiguration<Site>
         b.HasIndex(x => new { x.StudyId, x.SiteNumber }).IsUnique(); // protocol-level uniqueness
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
     }
 }
