@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 
 </Project>
