@@ -32,5 +32,6 @@ internal sealed class StudyConfiguration : IEntityTypeConfiguration<Study>
         b.HasIndex(x => x.ProtocolNumber).IsUnique();
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
     }
 }

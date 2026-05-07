@@ -33,5 +33,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         b.HasIndex(x => x.Email).IsUnique();
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
     }
 }

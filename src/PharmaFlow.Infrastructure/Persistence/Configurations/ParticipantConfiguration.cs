@@ -34,5 +34,6 @@ internal sealed class ParticipantConfiguration : IEntityTypeConfiguration<Partic
         b.HasIndex(x => new { x.SiteId, x.SubjectNumber }).IsUnique(); // subject-number uniqueness within a site
         b.HasIndex(x => x.EnrolmentStatus);
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
     }
 }

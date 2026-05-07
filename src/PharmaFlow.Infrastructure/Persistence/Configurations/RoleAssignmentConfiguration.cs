@@ -37,6 +37,7 @@ internal sealed class RoleAssignmentConfiguration : IEntityTypeConfiguration<Rol
         b.HasIndex(x => x.Role);
         b.HasIndex(x => x.EndedAt); // active-vs-ended filtering
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
         // Scope_Kind / Scope_StudyId / Scope_SiteId end up as columns on role_assignments table per OwnsOne;
         // optional index on scope_kind if access pattern needs it — defer to PFL-031 query work.
     }

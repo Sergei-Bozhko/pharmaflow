@@ -32,5 +32,6 @@ internal sealed class SiteConfiguration : IEntityTypeConfiguration<Site>
         b.HasIndex(x => new { x.StudyId, x.SiteNumber }).IsUnique(); // protocol-level uniqueness
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.IsDeleted).HasFilter("\"is_deleted\" = false");
+        b.HasQueryFilter(e => !EF.Property<bool>(e, "IsDeleted"));
     }
 }
