@@ -16,6 +16,7 @@ public sealed class AppDbContextDesignTimeFactory : IDesignTimeDbContextFactory<
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connectionString)
+            .UseSnakeCaseNamingConvention()
             .Options;
 
         return new AppDbContext(options);
