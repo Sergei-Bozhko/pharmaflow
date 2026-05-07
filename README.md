@@ -53,7 +53,51 @@ Full layer map and dependency rules: see [Technical Specification §7](<Docs/Pha
 
 ## Run locally
 
-> **TODO** — populated in Sprint 5 once the Studies feature is wired end-to-end.
+## Run locally  
+
+Prerequisites:
+
+- **.NET 10 SDK** (version pinned in `global.json`)
+- **Docker** — for PostgreSQL via `docker-compose`, and Azurite for Blob Storage emulation (Sprint 9)
+- **`gh` CLI** (optional — for PR / Actions interaction from the terminal)                                                                 
+
+### Dev DB
+
+Local PostgreSQL runs in Docker. Start it once per session:                                                                                
+
+```bash                    
+docker-compose up -d postgres
+```
+
+Set the design-time connection string (only needed when running dotnet ef CLI commands; runtime DI is wired separately in Sprint 4):
+
+```bash
+export PHARMAFLOW_DEV_CONNECTION='Host=localhost;Port=5432;Database=pharmaflow_dev;Username=pharmaflow;Password=pharmaflow'
+```
+
+Stop and wipe the DB volume (rare; only for a clean slate):
+```bash
+docker-compose down -v
+```
+
+Migrations (PFL-029 onwards)
+
+```bash
+dotnet ef migrations add <Name> \
+--project src/PharmaFlow.Infrastructure \
+--startup-project src/PharmaFlow.Infrastructure
+```
+
+Migration .cs files land under src/PharmaFlow.Infrastructure/Persistence/Migrations/ and are committed to git. CI builds them like any other code; CI does not run dotnet ef.
+
+Continuous integration
+
+CI does not need PostgreSQL. The build/test pipeline runs only:
+- dotnet build, dotnet format, dotnet test — none open a database connection.
+- Existing integration tests use EF Core\'s in-memory provider.
+
+Future round-trip integration tests (PFL-031..033) will use Testcontainers, which spins up an ephemeral Postgres container per test run.
+The GitHub Actions ubuntu-latest runner ships with Docker pre-installed, so no CI configuration changes are required.
 
 Prerequisites:
 
