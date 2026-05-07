@@ -7,15 +7,12 @@ using PharmaFlow.Domain.Signatures;
 using PharmaFlow.Domain.Sites;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Domain.Users;
+using PharmaFlow.Infrastructure.Persistence.Conventions;
 
 namespace PharmaFlow.Infrastructure.Persistence;
 
-public sealed class AppDbContext : DbContext, IAppDbContext
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<Study> Studies => Set<Study>();
 
     public DbSet<Site> Sites => Set<Site>();
@@ -32,7 +29,14 @@ public sealed class AppDbContext : DbContext, IAppDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Owned<Scope>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        StronglyTypedIdConvention.Apply(configurationBuilder);
+        base.ConfigureConventions(configurationBuilder);
     }
 }
