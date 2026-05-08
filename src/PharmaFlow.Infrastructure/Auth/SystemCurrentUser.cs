@@ -1,6 +1,7 @@
+using PharmaFlow.Application.Common.Auth;
 using PharmaFlow.Domain.Common.Ids;
 
-namespace PharmaFlow.Application.Common.Auth;
+namespace PharmaFlow.Infrastructure.Auth;
 
 public class SystemCurrentUser : ICurrentUser
 {
