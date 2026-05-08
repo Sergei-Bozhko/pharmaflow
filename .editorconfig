@@ -422,8 +422,25 @@ dotnet_naming_style.ends_with_async.capitalization = pascal_case
   # ============================================================================
   [tests/**/*.cs]                          
                                                                                                                             
-  # CA1707: Identifiers should not contain underscores.                              
-  # Suppressed in tests only — the convention `Method_under_condition_yields_outcome`                                       
+  # CA1707: Identifiers should not contain underscores.
+  # Suppressed in tests only — the convention `Method_under_condition_yields_outcome`
   # is standard for xUnit/.NET test naming and reads as a sentence in test runner
-  # output. Production code keeps CA1707 enforced (no underscores there).                                                   
+  # output. Production code keeps CA1707 enforced (no underscores there).
   dotnet_diagnostic.CA1707.severity = none
+
+  # ============================================================================
+  # EF Core migrations — generated code overrides
+  # ============================================================================
+  [**/Persistence/Migrations/**.cs]
+
+  # IDE0161: Convert to file-scoped namespace.
+  # Suppressed — `dotnet ef migrations add` generates block-scoped namespaces;
+  # migration files must not be hand-edited (spec §10.6) so reformatting is off
+  # the table. The repo standard (file-scoped) still applies everywhere else.
+  dotnet_diagnostic.IDE0161.severity = none
+
+  # CA1861: Prefer 'static readonly' fields over constant array arguments.
+  # Suppressed — EF emits `migrationBuilder.UniqueConstraint(..., new[] { ... })`
+  # by template. Migrations run once per deploy, so the perf rationale (repeated
+  # allocations in hot paths) does not apply.
+  dotnet_diagnostic.CA1861.severity = none
