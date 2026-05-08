@@ -67,10 +67,18 @@ Local PostgreSQL runs in Docker. Start it once per session:
 docker-compose up -d postgres
 ```
 
-Set the design-time connection string (only needed when running `dotnet ef` CLI commands; runtime DI is wired separately in Sprint 4):
+The design-time connection string (used by `dotnet ef` CLI; runtime DI is wired separately in Sprint 4) is read from .NET User Secrets first, then falls back to the `PHARMAFLOW_DEV_CONNECTION` environment variable. Set it once per machine:
 
 ```bash
-export PHARMAFLOW_DEV_CONNECTION='Host=localhost;Port=5432;Database=pharmaflow_dev;Username=pharmaflow;Password=pharmaflow'
+dotnet user-secrets set "PHARMAFLOW_DEV_CONNECTION" \
+    "Host=localhost;Port=5432;Database=pharmaflow_dev;Username=pharmaflow;Password=pharmaflow" \
+    --project src/PharmaFlow.Infrastructure
+```
+
+Stored in `~/.microsoft/usersecrets/<UserSecretsId>/secrets.json` — outside the repo, never committed. Override per-shell (CI, alternate creds) by exporting the env var; it wins over user secrets:
+
+```bash
+export PHARMAFLOW_DEV_CONNECTION='Host=...;Port=...;Database=...;Username=...;Password=...'
 ```
 
 Stop and wipe the DB volume (rare; only for a clean slate):
