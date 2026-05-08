@@ -1,6 +1,6 @@
 namespace PharmaFlow.Domain.Common;
 
-public abstract class Entity<TId> : IEquatable<Entity<TId>>
+public abstract class Entity<TId> : IEquatable<Entity<TId>>, IAuditedEntity
     where TId : struct
 {
     public TId Id { get; protected set; }
