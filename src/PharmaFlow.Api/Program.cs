@@ -19,3 +19,5 @@ if (app.Environment.IsDevelopment())
 app.MapHealthEndpoints();
 
 app.Run();
+
+public partial class Program;
