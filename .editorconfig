@@ -444,3 +444,14 @@ dotnet_naming_style.ends_with_async.capitalization = pascal_case
   # by template. Migrations run once per deploy, so the perf rationale (repeated
   # allocations in hot paths) does not apply.
   dotnet_diagnostic.CA1861.severity = none
+
+   # ============================================================================
+  # Test fixtures — xUnit collection-definition convention
+  # ============================================================================
+  [tests/**/Fixtures/**.cs]
+
+  # CA1711: Identifiers should not have incorrect suffix.
+  # Suppressed — xUnit collection-definition classes conventionally end in
+  # "Collection" (joined via [Collection(name)] on test classes); the analyzer
+  # doesn't recognise ICollectionFixture<T> as the framework signal.
+  dotnet_diagnostic.CA1711.severity = none
