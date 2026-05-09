@@ -6,7 +6,7 @@ using PharmaFlow.Domain.Studies;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Conventions;
 
-namespace PharmaFlow.Tests.Integration.Persistence;
+namespace PharmaFlow.Tests.Unit.Persistence;
 
 public sealed class StronglyTypedIdConventionTests
 {
