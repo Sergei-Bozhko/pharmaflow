@@ -19,7 +19,7 @@ public sealed class PostgresFixture : IAsyncLifetime
         .Build();
 
     public string ConnectionString => _container.GetConnectionString();
-    
+
     public Respawner Respawner { get; private set; } = default!;
 
     public async ValueTask InitializeAsync()
@@ -45,9 +45,9 @@ public sealed class PostgresFixture : IAsyncLifetime
             TablesToIgnore = [new Respawn.Graph.Table("__EFMigrationsHistory")],
         });
     }
-    
+
     public async ValueTask DisposeAsync() => await _container.DisposeAsync();
 }
 
-    [CollectionDefinition(nameof(PostgresCollection))]
-    public sealed class PostgresCollection : ICollectionFixture<PostgresFixture>;
+[CollectionDefinition(nameof(PostgresCollection))]
+public sealed class PostgresCollection : ICollectionFixture<PostgresFixture>;
