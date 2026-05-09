@@ -455,3 +455,9 @@ dotnet_naming_style.ends_with_async.capitalization = pascal_case
   # "Collection" (joined via [Collection(name)] on test classes); the analyzer
   # doesn't recognise ICollectionFixture<T> as the framework signal.
   dotnet_diagnostic.CA1711.severity = none
+
+  # CA1816: Call GC.SuppressFinalize correctly.
+  # Suppressed — xUnit's IAsyncLifetime.DisposeAsync uses the same method name as
+  # IAsyncDisposable.DisposeAsync but is a test-lifecycle hook, not a finalization
+  # entrypoint. SuppressFinalize is meaningless here.
+  dotnet_diagnostic.CA1816.severity = none
