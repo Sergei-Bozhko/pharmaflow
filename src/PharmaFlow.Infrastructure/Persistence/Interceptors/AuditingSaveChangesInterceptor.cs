@@ -12,7 +12,7 @@ using PharmaFlow.Domain.Common.Ids;
 
 namespace PharmaFlow.Infrastructure.Persistence.Interceptors;
 
-internal sealed class AuditingSaveChangesInterceptor(IClock clock, ICurrentUser currentUser) : SaveChangesInterceptor
+public sealed class AuditingSaveChangesInterceptor(IClock clock, ICurrentUser currentUser) : SaveChangesInterceptor
 {
     private const string PlaceholderEventPayloadHash = "0000000000000000000000000000000000000000000000000000000000000000";
 
