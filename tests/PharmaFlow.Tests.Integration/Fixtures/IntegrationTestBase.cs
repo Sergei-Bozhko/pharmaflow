@@ -26,9 +26,9 @@ public abstract class IntegrationTestBase(PostgresFixture fixture) : IAsyncLifet
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    protected AppDbContext CreateContext(IClock? clock = null, ICurrentUser? currentUser = null)
+    protected AppDbContext CreateContext(IClock clock, ICurrentUser? currentUser = null)
     {
-        var resolvedClock = clock ?? new FrozenClock(DateTimeOffset.Now);
+        var resolvedClock = clock ?? new FrozenClock(DateTimeOffset.UtcNow);
         var resolvedUser = currentUser ?? new SystemCurrentUser();
         var interceptor = new AuditingSaveChangesInterceptor(resolvedClock, resolvedUser);
 
