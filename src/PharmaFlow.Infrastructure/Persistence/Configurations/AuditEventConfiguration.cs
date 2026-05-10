@@ -10,6 +10,7 @@ internal sealed class AuditEventConfiguration : IEntityTypeConfiguration<AuditEv
     public void Configure(EntityTypeBuilder<AuditEvent> b)
     {
         b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedOnAdd().UseIdentityByDefaultColumn();
 
         b.Property(x => x.OccurredAt).IsRequired();
         b.Property(x => x.ActorUserId).IsRequired();

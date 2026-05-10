@@ -1,5 +1,8 @@
+using System.Globalization;
+
 using Microsoft.EntityFrameworkCore;
 
+using PharmaFlow.Tests.Integration.Common.Helpers;
 using PharmaFlow.Tests.Integration.Fixtures;
 
 namespace PharmaFlow.Tests.Integration.Smoke;
@@ -9,7 +12,8 @@ public sealed class PostgresFixtureSmokeTests(PostgresFixture fixture) : Integra
     [Fact]
     public async Task Postgres_container_starts_and_initial_migration_apllies_Async()
     {
-        await using var ctx = CreateContext();
+        var clock = new FrozenClock(DateTimeOffset.Parse("2026-05-10T12:00:00Z", CultureInfo.InvariantCulture));
+        await using var ctx = CreateContext(clock);
 
         var canConnect = await ctx.Database.CanConnectAsync(TestContext.Current.CancellationToken);
         var migrations = await ctx.Database.GetAppliedMigrationsAsync(cancellationToken: TestContext.Current.CancellationToken);
@@ -21,7 +25,8 @@ public sealed class PostgresFixtureSmokeTests(PostgresFixture fixture) : Integra
     [Fact]
     public async Task Respawner_reset_leaves_schema_intact_Async()
     {
-        await using var ctx = CreateContext();
+        var clock = new FrozenClock(DateTimeOffset.Parse("2026-05-10T12:00:00Z", CultureInfo.InvariantCulture));
+        await using var ctx = CreateContext(clock);
 
         var studyCount = await ctx.Studies.CountAsync(cancellationToken: TestContext.Current.CancellationToken);
 
