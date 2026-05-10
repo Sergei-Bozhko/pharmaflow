@@ -129,5 +129,6 @@ public sealed class AuditingSaveChangesInterceptor(IClock clock, ICurrentUser cu
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
     };
 }
