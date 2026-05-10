@@ -92,19 +92,19 @@ docker-compose down -v
 ```bash
 dotnet ef migrations add <Name> \
     --project src/PharmaFlow.Infrastructure \
-    --startup-project src/PharmaFlow.Infrastructure
+    --startup-project src/PharmaFlow.Api
 ```
 
 Migration `.cs` files land under `src/PharmaFlow.Infrastructure/Persistence/Migrations/` and are committed to git. CI builds them like any other code; CI does not run `dotnet ef`.
 
 ### Continuous integration
 
-CI does not need PostgreSQL. The build/test pipeline runs only:
+CI runs in two ordered steps on the same `ubuntu-latest` runner:
 
-- `dotnet build`, `dotnet format`, `dotnet test` — none open a database connection.
-- Existing integration tests use EF Core's in-memory provider.
+- **Unit** — `dotnet test --project tests/PharmaFlow.Tests.Unit` (no DB; no Docker required).
+- **Integration** — `dotnet test --project tests/PharmaFlow.Tests.Integration`. Testcontainers spins up an ephemeral Postgres container per test session against the runner's pre-installed Docker daemon. ~30 s cold-start on first run; image cached afterwards.
 
-Future round-trip integration tests (PFL-031..033) will use Testcontainers, which spins up an ephemeral Postgres container per test run. The GitHub Actions `ubuntu-latest` runner ships with Docker pre-installed, so no CI configuration changes are required.
+Project-scoped over trait-filtered (`--filter-trait`) — avoids MTP exit-code-8 when one project has zero matches. Trait `[Trait("Category", "Integration")]` is still applied to the integration base class for local iteration (`dotnet test --filter-trait "Category=Integration"`).
 
 ## Compliance
 

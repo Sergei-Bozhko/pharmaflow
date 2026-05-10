@@ -1,6 +1,6 @@
 # 04 — Domain Model
 
-The shapes inside `PharmaFlow.Domain` as of Sprint 2 close (2026-05-06). Source: spec §3 (entities), §9.1 (patterns), §10.1–§10.3 (typed IDs + base entity), and the Sprint 2 ticket detail (`PFL-014` / `015` / `016` / `019`–`023`).
+The shapes inside `PharmaFlow.Domain` as of Sprint 3 close (2026-05-10) — Sprint 3 was Infrastructure-side only; Domain remains structurally identical to Sprint 2 close apart from the `UserId.System` static sentinel added in PFL-030 (not shown — static accessor, not a structural addition). Source: spec §3 (entities), §9.1 (patterns), §10.1–§10.3 (typed IDs + base entity), and the Sprint 2 ticket detail (`PFL-014` / `015` / `016` / `019`–`023`).
 
 This is **structural**, not behavioural — methods on aggregates are sketched, not exhaustive. Sprint 2 builds the empty shells + invariants; subsequent sprints fill in document/consent/auth flows.
 
@@ -30,7 +30,7 @@ classDiagram
         <<record>>
         +string Code
         +string Message
-        +ErrorType Type
+        +ErrorType ErrorType
         +Validation(c, m) Error$
         +NotFound(c, m) Error$
         +Conflict(c, m) Error$
