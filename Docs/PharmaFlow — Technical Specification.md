@@ -1576,15 +1576,15 @@ When PharmaFlow v1 is built, verify by:
 
 ## 29. Decision Log (ADRs to write during build)
 
-Each lives as a one-page Markdown file in `docs/adr/NNNN-title.md`:
+Each lives as a one-page Markdown file in `Docs/ADRs/NNNN-title.md`:
 
 1. ADR-0001: Mediator over MediatR (license-driven swap; martinothamar/Mediator, MIT).
 2. ADR-0002: Postgres over Azure SQL.
-3. ADR-0003: Mapperly over AutoMapper.
-4. ADR-0004: Hand-rolled `Result<T>` over FluentResults.
-5. ADR-0005: Blazor Web App (Auto) over React.
-6. ADR-0006: ASP.NET Core Identity + JWT over Entra External ID for v1.
-7. ADR-0007: Audit table with hash chain over event sourcing.
+3. ADR-0003: Audit table over event sourcing (shipped Sprint 3; hash chain deferred to Sprint 8).
+4. ADR-0004: Mapperly over AutoMapper.
+5. ADR-0005: Hand-rolled `Result<T>` over FluentResults.
+6. ADR-0006: Blazor Web App (Auto) over React.
+7. ADR-0007: ASP.NET Core Identity + JWT over Entra External ID for v1.
 8. ADR-0008: HMAC signing v1; RSA-PSS / Ed25519 deferred to v2.
 9. ADR-0009: Single-tenant v1 with multi-tenant seam (TenantId shadow + global filter).
 10. ADR-0010: No microservices / no message broker for v1.
