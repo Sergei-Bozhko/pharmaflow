@@ -4,6 +4,13 @@
     <ProjectReference Include="..\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="Mediator.SourceGenerator">
+      <OutputItemType>Analyzer</OutputItemType>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
 </Project>
