@@ -57,7 +57,7 @@ jobs:
           line_rate = float(root.get('line-rate', '0'))
           branch_rate = float(root.get('branch-rate', '0'))
           # TODO bump to 0.80 line / 0.70 branch once PFL-042..046 land
-          MIN_LINE, MIN_BRANCH = 0.00, 0.00  # placeholder — replace with measured baseline
+          MIN_LINE, MIN_BRANCH = 0.80, 0.70  # spec §21.1
           print(f'line-rate={line_rate:.4f} branch-rate={branch_rate:.4f}')
           fail = []
           if line_rate < MIN_LINE: fail.append(f'line {line_rate:.4f} < {MIN_LINE}')
