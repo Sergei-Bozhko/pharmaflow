@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <Configuration>
+   <CodeCoverage>
+     <ModulePaths>
+       <Include>
+         <ModulePath>.*PharmaFlow\.Domain\.dll$</ModulePath>
+         <ModulePath>.*PharmaFlow\.Application\.dll$</ModulePath>
+       </Include>
+       <Exclude>
+         <ModulePath>.*Tests.*\.dll$</ModulePath>
+       </Exclude>
+     </ModulePaths>
+     <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
+     <CollectFromChildProcesses>True</CollectFromChildProcesses>
+   </CodeCoverage>
+ </Configuration>

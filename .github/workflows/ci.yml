@@ -38,6 +38,34 @@ jobs:
       - name: Test (unit)
         run: dotnet test --project tests/PharmaFlow.Tests.Unit/PharmaFlow.Tests.Unit.csproj --no-build -c Release
 
+      - name: Coverage gate (Domain + Application)
+        run: |
+          set -e
+          dotnet test --project tests/PharmaFlow.Tests.Unit/PharmaFlow.Tests.Unit.csproj --no-build -c Release \
+            --coverage \
+            --coverage-output-format cobertura \
+            --coverage-output coverage.cobertura.xml \
+            --coverage-settings tests/coverage.runsettings
+          python3 - <<'EOF'
+          import sys, xml.etree.ElementTree as ET
+          # Find the cobertura output (MTP may emit it under TestResults/<guid>/)
+          import glob
+          matches = glob.glob('**/coverage.cobertura.xml', recursive=True)
+          if not matches:
+              print('::error::coverage.cobertura.xml not found'); sys.exit(1)
+          root = ET.parse(matches[0]).getroot()
+          line_rate = float(root.get('line-rate', '0'))
+          branch_rate = float(root.get('branch-rate', '0'))
+          # TODO bump to 0.80 line / 0.70 branch once PFL-042..046 land
+          MIN_LINE, MIN_BRANCH = 0.00, 0.00  # placeholder — replace with measured baseline
+          print(f'line-rate={line_rate:.4f} branch-rate={branch_rate:.4f}')
+          fail = []
+          if line_rate < MIN_LINE: fail.append(f'line {line_rate:.4f} < {MIN_LINE}')
+          if branch_rate < MIN_BRANCH: fail.append(f'branch {branch_rate:.4f} < {MIN_BRANCH}')
+          if fail:
+              print('::error::Coverage below threshold:', ', '.join(fail)); sys.exit(1)
+          EOF
+
       - name: Test (integration)
         run: dotnet test --project tests/PharmaFlow.Tests.Integration/PharmaFlow.Tests.Integration.csproj --no-build -c Release
 
