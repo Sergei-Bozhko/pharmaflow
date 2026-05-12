@@ -17,7 +17,7 @@ public class BehaviorRegistrationOrderTests
 
         var behaviors = services
             .Where(d => d.ServiceType.IsGenericType
-                     && d.ServiceType.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
+                    && d.ServiceType.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
             .Select(d => d.ImplementationType)
             .ToList();
 
