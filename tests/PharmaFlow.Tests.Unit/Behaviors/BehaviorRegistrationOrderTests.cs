@@ -17,7 +17,7 @@ public class BehaviorRegistrationOrderTests
 
         var behaviors = services
             .Where(d => d.ServiceType.IsGenericType
-                     && d.ServiceType.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
+                    && d.ServiceType.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
             .Select(d => d.ImplementationType)
             .ToList();
 
@@ -29,7 +29,11 @@ public class BehaviorRegistrationOrderTests
         // PFL-046: expand to [..., typeof(AuditBehavior<,>)]
         // Assert.Empty(behaviors);
         Assert.Equal(
-            new[] { typeof(LoggingBehavior<,>), typeof(ValidationBehavior<,>) },
+            new[] {
+                typeof(LoggingBehavior<,>),
+                typeof(ValidationBehavior<,>),
+                typeof(TransactionBehavior<,>)
+                },
             behaviors);
     }
 }

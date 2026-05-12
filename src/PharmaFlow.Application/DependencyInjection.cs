@@ -19,7 +19,7 @@ public static class DependencyInjection
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         // services.AddScoped(typeof(IPipelineBehavior<,>), typeof(IdempotencyBehavior<,>));  // PFL-045
-        // services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));  // PFL-044
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         // services.AddScoped(typeof(IPipelineBehavior<,>), typeof(AuditBehavior<,>));        // PFL-046
 
         return services;

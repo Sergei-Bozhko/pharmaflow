@@ -1,6 +1,6 @@
 using Mediator;
 
-using PharmaFlow.Application.Common.Mediator;
+using PharmaFlow.Application.Common.Messaging;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
@@ -16,7 +16,7 @@ public sealed record CreateStudyCommand(
     int PlannedEnrolment,
     DateOnly PlannedStartDate,
     DateOnly PlannedEndDate
-) : IIdempotentCommand<StudyId>
+) : IIdempotentAppCommand<StudyId>
 {
 
 }
