@@ -10,7 +10,7 @@ namespace PharmaFlow.Tests.Unit.Behaviors;
 public class LoggingBehaviorTests
 {
     [Fact]
-    public async Task Successful_request_logs_information_with_elapsed_ms()
+    public async Task Successful_request_logs_information_with_elapsed_msAsync()
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
@@ -28,7 +28,7 @@ public class LoggingBehaviorTests
     }
 
     [Fact]
-    public async Task Failed_result_logs_warning_with_error_code()
+    public async Task Failed_result_logs_warning_with_error_codeAsync()
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
@@ -47,7 +47,7 @@ public class LoggingBehaviorTests
     }
 
     [Fact]
-    public async Task Thrown_exception_logs_error_and_rethrows()
+    public async Task Thrown_exception_logs_error_and_rethrowsAsync()
     {
         var logger = new TestLogger<LoggingBehavior<TestRequest, Result>>();
         var behavior = new LoggingBehavior<TestRequest, Result>(logger);
