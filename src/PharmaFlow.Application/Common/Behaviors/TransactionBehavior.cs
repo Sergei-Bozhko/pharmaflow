@@ -38,6 +38,7 @@ private readonly IAppDbContext _ctx;
             if (response is Result r && r.IsFailure)
             {
                 await tx.RollbackAsync(cancellationToken);
+                return response;
             }
 
             await tx.CommitAsync(cancellationToken);
