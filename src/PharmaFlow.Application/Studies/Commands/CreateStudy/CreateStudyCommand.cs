@@ -1,4 +1,7 @@
+using Mediator;
+
 using PharmaFlow.Application.Common.Mediator;
+using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 
@@ -15,5 +18,14 @@ public sealed record CreateStudyCommand(
     DateOnly PlannedEndDate
 ) : IIdempotentCommand<StudyId>
 {
-    
+
+}
+
+internal sealed class CreateStudyHandler : IRequestHandler<CreateStudyCommand, Result<StudyId>>
+{
+    public ValueTask<Result<StudyId>> Handle(CreateStudyCommand request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException(
+            "CreateStudyHandler is stubbed for PFL-043; real impl lands in PFL-050.");
+    }
 }
