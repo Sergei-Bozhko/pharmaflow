@@ -2,6 +2,7 @@ using Mediator;
 
 using Microsoft.EntityFrameworkCore;
 
+using PharmaFlow.Application.Common.Messaging;
 using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Common;
 
@@ -55,7 +56,7 @@ private readonly IAppDbContext _ctx;
     {
         var type = typeof(TRequest);
 
-        if( typeof(ICommand).IsAssignableFrom(type))
+        if( typeof(IAppCommand).IsAssignableFrom(type))
         {
             return true;
         }
