@@ -13,8 +13,8 @@ public sealed class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior
 {
     private static readonly bool IsCommand = ComputeIsCommand();
 
-private readonly IAppDbContext _ctx;
-    public TransactionBehavior (IAppDbContext ctx)
+    private readonly IAppDbContext _ctx;
+    public TransactionBehavior(IAppDbContext ctx)
     {
         _ctx = ctx;
     }
@@ -56,12 +56,12 @@ private readonly IAppDbContext _ctx;
     {
         var type = typeof(TRequest);
 
-        if( typeof(IAppCommand).IsAssignableFrom(type))
+        if (typeof(IAppCommand).IsAssignableFrom(type))
         {
             return true;
         }
 
-        return type.GetInterfaces().Any(i => 
+        return type.GetInterfaces().Any(i =>
             i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<>));
     }
 }

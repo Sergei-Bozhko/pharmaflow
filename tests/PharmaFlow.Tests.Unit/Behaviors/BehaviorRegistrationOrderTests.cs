@@ -30,7 +30,7 @@ public class BehaviorRegistrationOrderTests
         // Assert.Empty(behaviors);
         Assert.Equal(
             new[] {
-                typeof(LoggingBehavior<,>), 
+                typeof(LoggingBehavior<,>),
                 typeof(ValidationBehavior<,>),
                 typeof(TransactionBehavior<,>)
                 },
