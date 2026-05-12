@@ -3,6 +3,7 @@ using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 using PharmaFlow.Application;
+using PharmaFlow.Application.Common.Behaviors;
 
 namespace PharmaFlow.Tests.Unit.Behaviors;
 
@@ -26,6 +27,7 @@ public class BehaviorRegistrationOrderTests
         // PFL-045: expand to [..., typeof(IdempotencyBehavior<,>)]
         // PFL-044: expand to [..., typeof(TransactionBehavior<,>)]
         // PFL-046: expand to [..., typeof(AuditBehavior<,>)]
-        Assert.Empty(behaviors);
+        // Assert.Empty(behaviors);
+        Assert.Equal(new[] { typeof(LoggingBehavior<,>) }, behaviors);
     }
 }
