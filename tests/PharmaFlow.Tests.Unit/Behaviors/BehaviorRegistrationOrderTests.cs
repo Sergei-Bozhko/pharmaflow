@@ -29,7 +29,11 @@ public class BehaviorRegistrationOrderTests
         // PFL-046: expand to [..., typeof(AuditBehavior<,>)]
         // Assert.Empty(behaviors);
         Assert.Equal(
-            new[] { typeof(LoggingBehavior<,>), typeof(ValidationBehavior<,>) },
+            new[] {
+                typeof(LoggingBehavior<,>), 
+                typeof(ValidationBehavior<,>),
+                typeof(TransactionBehavior<,>)
+                },
             behaviors);
     }
 }
