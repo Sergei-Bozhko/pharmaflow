@@ -41,6 +41,12 @@ public sealed class Study : Entity<StudyId>
         Status = StudyStatus.Draft;
     }
 
+    public const int MaxProtocolNumberLength = 50;
+    public const int MaxTitleLength = 200;
+    public const int MaxTherapeuticAreaLength = 100;
+    public const int MaxSponsorOrganizationLength = 200;
+    public const int MinPlannedEnrolment = 1;
+
     public static Result<Study> Create(
         StudyId id,
         string protocolNumber,
@@ -54,7 +60,7 @@ public sealed class Study : Entity<StudyId>
         IClock clock
     )
     {
-        if (string.IsNullOrWhiteSpace(protocolNumber) || protocolNumber.Length > 50)
+        if (string.IsNullOrWhiteSpace(protocolNumber) || protocolNumber.Length > MaxProtocolNumberLength)
         {
             return Error.Validation(
                 "study.protocol_number.invalid",
@@ -62,7 +68,7 @@ public sealed class Study : Entity<StudyId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(title) || title.Length > 200)
+        if (string.IsNullOrWhiteSpace(title) || title.Length > MaxTitleLength)
         {
             return Error.Validation(
                 "study.title.invalid",
@@ -78,7 +84,7 @@ public sealed class Study : Entity<StudyId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(therapeuticArea) || therapeuticArea.Length > 100)
+        if (string.IsNullOrWhiteSpace(therapeuticArea) || therapeuticArea.Length > MaxTherapeuticAreaLength)
         {
             return Error.Validation(
                 "study.therapeutic_area.invalid",
@@ -86,7 +92,7 @@ public sealed class Study : Entity<StudyId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(sponsorOrganization) || sponsorOrganization.Length > 200)
+        if (string.IsNullOrWhiteSpace(sponsorOrganization) || sponsorOrganization.Length > MaxSponsorOrganizationLength)
         {
             return Error.Validation(
                 "study.sponsor.invalid",
@@ -94,7 +100,7 @@ public sealed class Study : Entity<StudyId>
             );
         }
 
-        if (plannedEnrolment <= 0)
+        if (plannedEnrolment < MinPlannedEnrolment)
         {
             return Error.Validation(
                 "study.planned_enrolment.invalid",
