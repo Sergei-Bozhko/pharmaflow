@@ -259,7 +259,7 @@ public class IdempotencyBehaviorTests(PostgresFixture fixture) : IntegrationTest
         Assert.IsType<Result<Guid>>(result);   // proves reflection branch produced typed wrapper
     }
 
-    
+
     // ---------- helpers ----------
 
     private (FrozenClock clock, ICurrentUser user, AppDbContext ctx, IdempotencyBehavior<TRequest, TResponse> behavior)
