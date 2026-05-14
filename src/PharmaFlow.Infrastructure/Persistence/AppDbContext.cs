@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Participants;
@@ -26,6 +27,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
 
     public DbSet<SignatureRecord> SignatureRecords => Set<SignatureRecord>();
+
+    public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
