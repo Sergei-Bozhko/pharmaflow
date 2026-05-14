@@ -241,6 +241,25 @@ public class IdempotencyBehaviorTests(PostgresFixture fixture) : IntegrationTest
         }
     }
 
+    [Fact]
+    public async Task Empty_key_with_generic_result_returns_typed_failureAsync()
+    {
+        var (_, _, _, behavior) = BuildHarness<TestIdempotentCommandWithValue, Result<Guid>>(keyOverride: "");
+
+        MessageHandlerDelegate<TestIdempotentCommandWithValue, Result<Guid>> next =
+            (_, _) => ValueTask.FromResult(Result<Guid>.Success(Guid.NewGuid()));
+
+        var result = await behavior.Handle(
+            new TestIdempotentCommandWithValue("payload"),
+            next,
+            TestContext.Current.CancellationToken);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("idempotency.key_required", result.Error.Code);
+        Assert.IsType<Result<Guid>>(result);   // proves reflection branch produced typed wrapper
+    }
+
+    
     // ---------- helpers ----------
 
     private (FrozenClock clock, ICurrentUser user, AppDbContext ctx, IdempotencyBehavior<TRequest, TResponse> behavior)
