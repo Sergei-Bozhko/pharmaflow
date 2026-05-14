@@ -14,4 +14,5 @@ public enum AuditEventType
     ConsentCaptured = 9,
     StatusTransition = 10,
     KeyRotation = 11,
+    CommandOutcome = 12,
 }

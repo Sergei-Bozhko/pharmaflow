@@ -24,15 +24,17 @@ public class BehaviorRegistrationOrderTests
         // PFL-041: 0 behaviors registered (all placeholders commented).
         // PFL-042: expand to [typeof(LoggingBehavior<,>)]
         // PFL-043: expand to [typeof(LoggingBehavior<,>), typeof(ValidationBehavior<,>)]
-        // PFL-045: expand to [..., typeof(IdempotencyBehavior<,>)]
         // PFL-044: expand to [..., typeof(TransactionBehavior<,>)]
-        // PFL-046: expand to [..., typeof(AuditBehavior<,>)]
-        // Assert.Empty(behaviors);
+        // PFL-045: expand to [..., typeof(IdempotencyBehavior<,>), typeof(TransactionBehavior<,>)]
+        // PFL-046: insert AuditBehavior BEFORE TransactionBehavior so audit row save runs
+        //         outside the handler's tx (PFL-046 §64). Final order:
+        //         [Logging, Validation, Idempotency, Audit, Transaction].
         Assert.Equal(
             new[] {
                 typeof(LoggingBehavior<,>),
                 typeof(ValidationBehavior<,>),
                 typeof(IdempotencyBehavior<,>),
+                typeof(AuditBehavior<,>),
                 typeof(TransactionBehavior<,>)
                 },
             behaviors);
