@@ -32,6 +32,7 @@ public class BehaviorRegistrationOrderTests
             new[] {
                 typeof(LoggingBehavior<,>),
                 typeof(ValidationBehavior<,>),
+                typeof(IdempotencyBehavior<,>),
                 typeof(TransactionBehavior<,>)
                 },
             behaviors);

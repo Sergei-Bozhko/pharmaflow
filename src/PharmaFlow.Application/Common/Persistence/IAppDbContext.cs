@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Participants;
 using PharmaFlow.Domain.Signatures;
@@ -18,5 +19,6 @@ public interface IAppDbContext
     DbSet<RoleAssignment> RoleAssignments { get; }
     DbSet<AuditEvent> AuditEvents { get; }
     DbSet<SignatureRecord> SignatureRecords { get; }
+    DbSet<IdempotencyRecord> IdempotencyRecords { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
