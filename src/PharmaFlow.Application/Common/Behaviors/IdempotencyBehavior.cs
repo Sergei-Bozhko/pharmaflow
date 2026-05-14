@@ -121,8 +121,8 @@ public sealed class IdempotencyBehavior<TRequest, TResponse> : IPipelineBehavior
     {
         if (ResultValueType is null)
         {
-            // TResponse == Result (non-generic). No value to cache.
-            return string.Empty;
+            // TResponse == Result (non-generic). Nothing to cache, but jsonb needs valid JSON.
+            return "null";
         }
 
         // TResponse == Result<T>. Read Value via reflection on the closed type.
