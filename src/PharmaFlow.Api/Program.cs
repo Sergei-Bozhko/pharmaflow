@@ -1,5 +1,7 @@
+using PharmaFlow.Api.Common.Idempotency;
 using PharmaFlow.Api.Endpoints;
 using PharmaFlow.Application;
+using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,8 @@ builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 builder.Services.AddOpenApi();
 builder.Services.AddPharmaFlowApplication();
 builder.Services.AddPharmaFlowInfrastructure(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IIdempotencyKeyProvider, HttpIdempotencyKeyProvider>();
 
 var app = builder.Build();
 
