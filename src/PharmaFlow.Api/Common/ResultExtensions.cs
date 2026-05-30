@@ -43,11 +43,11 @@ public static class ResultExtensions
         }
 
         return Results.Problem(
-            detail:     error.Message,
-            instance:   ctx.Request.Path,
+            detail: error.Message,
+            instance: ctx.Request.Path,
             statusCode: status,
-            title:      error.ErrorType.ToString(),
-            type:       TypeUriFor(status),
+            title: error.ErrorType.ToString(),
+            type: TypeUriFor(status),
             extensions: extensions);
     }
 
