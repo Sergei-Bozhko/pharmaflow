@@ -1,6 +1,7 @@
 using Mediator;
 
 using PharmaFlow.Application.Common.Messaging;
+using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
@@ -21,11 +22,32 @@ public sealed record CreateStudyCommand(
 
 }
 
-internal sealed class CreateStudyHandler : IRequestHandler<CreateStudyCommand, Result<StudyId>>
+internal sealed class CreateStudyHandler(IAppDbContext ctx, IClock clock) 
+    : IRequestHandler<CreateStudyCommand, Result<StudyId>>
 {
-    public ValueTask<Result<StudyId>> Handle(CreateStudyCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<StudyId>> Handle(CreateStudyCommand cmd, CancellationToken ct)
     {
-        throw new NotImplementedException(
-            "CreateStudyHandler is stubbed for PFL-043; real impl lands in PFL-050.");
+        var result = Study.Create(
+            StudyId.New(),
+            cmd.ProtocolNumber,
+            cmd.Title,
+            cmd.Phase,
+            cmd.TherapeuticArea,
+            cmd.SponsorOrganization,
+            cmd.PlannedEnrolment,
+            cmd.PlannedStartDate,
+            cmd.PlannedEndDate,
+            clock
+        );
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
+        ctx.Studies.Add(result.Value);
+        await ctx.SaveChangesAsync(ct);
+
+        return result.Value.Id;
     }
 }
