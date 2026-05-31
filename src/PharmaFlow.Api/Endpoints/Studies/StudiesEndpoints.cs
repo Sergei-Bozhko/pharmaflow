@@ -28,7 +28,7 @@ public static class StudiesEndpoints
 
             var result = await sender.Send(cmd, ct);
 
-            return result.ToHttpResult(ctx, StatusCodes.Status201Created);
+            return result.ToCreatedResult(ctx, id => $"{ctx.Request.Path}/{id.Value}");
         });
 
         return app;
