@@ -20,11 +20,10 @@ builder.Services.AddScoped<IIdempotencyKeyProvider, HttpIdempotencyKeyProvider>(
 
 var app = builder.Build();
 
-app.MapScalarApiReference();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapScalarApiReference();
     app.MapOpenApi();
 }
 
