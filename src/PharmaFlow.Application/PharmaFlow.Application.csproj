@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <InternalsVisibleTo Include="PharmaFlow.Tests.Unit" />
+
     <ProjectReference Include="..\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
