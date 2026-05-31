@@ -1,5 +1,6 @@
 using PharmaFlow.Api.Common.Idempotency;
 using PharmaFlow.Api.Endpoints;
+using PharmaFlow.Api.Endpoints.Studies;
 using PharmaFlow.Application;
 using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Infrastructure;
@@ -28,6 +29,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapHealthEndpoints();
+app.MapStudies();
 
 app.Run();
 
