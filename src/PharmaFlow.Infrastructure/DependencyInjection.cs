@@ -1,7 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using PharmaFlow.Application.Common.Auth;
+using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Common;
+using PharmaFlow.Infrastructure.Auth;
+using PharmaFlow.Infrastructure.Persistence;
+using PharmaFlow.Infrastructure.Persistence.Interceptors;
 using PharmaFlow.Infrastructure.Time;
 
 namespace PharmaFlow.Infrastructure;
@@ -13,7 +19,22 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddSingleton<IClock, SystemClock>();
-        // PFL-050+: AppDbContext registration + interceptor wiring
+        services.AddScoped<ICurrentUser, SystemCurrentUser>();
+        services.AddScoped<AuditingSaveChangesInterceptor>();
+
+        var connectionString = configuration.GetConnectionString("Default")
+            ?? throw new InvalidOperationException(
+                "Missing connection string 'ConnectionStrings:Default'."
+            );
+
+        services.AddDbContext<AppDbContext>((sp, options) =>
+            options
+                .UseNpgsql(connectionString)
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(sp.GetRequiredService<AuditingSaveChangesInterceptor>()));
+
+        services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
         return services;
     }
 }

@@ -17,6 +17,14 @@ public static class ResultExtensions
             ? SuccessResult(result.Value, successStatus, ctx)
             : Problem(result.Error, ctx);
 
+    public static IResult ToCreatedResult<T>(
+        this Result<T> result,
+        HttpContext ctx,
+        Func<T, string> location) =>
+        result.IsSuccess
+            ? Results.Created(location(result.Value), result.Value)
+            : Problem(result.Error, ctx);
+
     private static IResult SuccessResult<T>(T value, int status, HttpContext ctx) =>
         status switch
         {

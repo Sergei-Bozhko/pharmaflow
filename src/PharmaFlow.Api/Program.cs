@@ -1,5 +1,6 @@
 using PharmaFlow.Api.Common.Idempotency;
 using PharmaFlow.Api.Endpoints;
+using PharmaFlow.Api.Endpoints.Studies;
 using PharmaFlow.Application;
 using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Infrastructure;
@@ -20,15 +21,15 @@ builder.Services.AddScoped<IIdempotencyKeyProvider, HttpIdempotencyKeyProvider>(
 
 var app = builder.Build();
 
-app.MapScalarApiReference();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapScalarApiReference();
     app.MapOpenApi();
 }
 
 app.MapHealthEndpoints();
+app.MapStudies();
 
 app.Run();
 
