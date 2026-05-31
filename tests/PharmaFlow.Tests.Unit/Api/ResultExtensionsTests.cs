@@ -32,11 +32,23 @@ public class ResultExtensionsTests
     }
 
     [Fact]
-    public void Success_value_with_201_returns_Created()
+    public void ToCreatedResult_sets_Location_to_per_resource_uri()
     {
-        var http = Result<int>.Success(42).ToHttpResult(Ctx(), StatusCodes.Status201Created);
+        var http = Result<int>.Success(42).ToCreatedResult(Ctx(), id => $"/api/v1/studies/{id}");
         var created = Assert.IsType<Created<int>>(http);
         Assert.Equal(42, created.Value);
+        Assert.Equal("/api/v1/studies/42", created.Location);
+    }
+
+    [Fact]
+    public void ToCreatedResult_failure_returns_problem_not_location()
+    {
+        var err = Error.Validation("v.code", "bad");
+        var http = Result<int>.Failure(err).ToCreatedResult(Ctx(), id => $"/api/v1/studies/{id}");
+
+        var problem = Assert.IsType<ProblemHttpResult>(http);
+        Assert.Equal(400, problem.StatusCode);
+        Assert.Equal("v.code", problem.ProblemDetails.Extensions["errorCode"]);
     }
 
     [Theory]
