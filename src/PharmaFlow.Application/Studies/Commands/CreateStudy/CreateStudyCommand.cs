@@ -22,7 +22,7 @@ public sealed record CreateStudyCommand(
 
 }
 
-internal sealed class CreateStudyHandler(IAppDbContext ctx, IClock clock) 
+internal sealed class CreateStudyHandler(IAppDbContext ctx, IClock clock)
     : IRequestHandler<CreateStudyCommand, Result<StudyId>>
 {
     public async ValueTask<Result<StudyId>> Handle(CreateStudyCommand cmd, CancellationToken ct)
