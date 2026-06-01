@@ -1,6 +1,6 @@
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Studies.Commands.CreateStudy;
+namespace PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 
 public record CreateStudyDto
 (
