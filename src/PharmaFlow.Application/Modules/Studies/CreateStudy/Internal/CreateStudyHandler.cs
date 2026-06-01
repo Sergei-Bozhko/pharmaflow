@@ -1,26 +1,11 @@
 using Mediator;
 
-using PharmaFlow.Application.Common.Messaging;
 using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Studies.Commands.CreateStudy;
-
-public sealed record CreateStudyCommand(
-    string ProtocolNumber,
-    string Title,
-    StudyPhase Phase,
-    string TherapeuticArea,
-    string SponsorOrganization,
-    int PlannedEnrolment,
-    DateOnly PlannedStartDate,
-    DateOnly PlannedEndDate
-) : IIdempotentAppCommand<StudyId>
-{
-
-}
+namespace PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 
 internal sealed class CreateStudyHandler(IAppDbContext ctx, IClock clock)
     : IRequestHandler<CreateStudyCommand, Result<StudyId>>
