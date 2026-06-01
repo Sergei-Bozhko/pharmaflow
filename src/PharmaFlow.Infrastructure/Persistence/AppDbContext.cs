@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 
 using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Modules.Sites.Internal;
+using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Participants;
 using PharmaFlow.Domain.Signatures;
@@ -9,8 +11,6 @@ using PharmaFlow.Domain.Sites;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Domain.Users;
 using PharmaFlow.Infrastructure.Persistence.Conventions;
-using PharmaFlow.Application.Modules.Sites.Internal;
-using PharmaFlow.Application.Modules.Studies.Internal;
 
 namespace PharmaFlow.Infrastructure.Persistence;
 
