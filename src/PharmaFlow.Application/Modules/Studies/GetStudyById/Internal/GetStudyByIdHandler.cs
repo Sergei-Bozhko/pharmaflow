@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Domain.Common;
 
-namespace PharmaFlow.Application.Studies.Queries.GetStudyById;
+namespace PharmaFlow.Application.Modules.Studies.GetStudyById.Internal;
 
 internal sealed class GetStudyByIdHandler(IAppDbContext ctx)
     : IRequestHandler<GetStudyByIdQuery, Result<StudyDto>>
