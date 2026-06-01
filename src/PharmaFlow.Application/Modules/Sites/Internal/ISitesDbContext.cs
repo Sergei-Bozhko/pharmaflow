@@ -4,7 +4,7 @@ using PharmaFlow.Domain.Sites;
 
 namespace PharmaFlow.Application.Modules.Sites.Internal;
 
-internal interface ISitesDbContext
+public interface ISitesDbContext
 {
     DbSet<Site> Sites { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

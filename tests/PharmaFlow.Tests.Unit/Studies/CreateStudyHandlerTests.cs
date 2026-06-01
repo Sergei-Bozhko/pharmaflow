@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
-using PharmaFlow.Application.Studies.Commands.CreateStudy;
+using PharmaFlow.Application.Modules.Studies.CreateStudy;
+using PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;

@@ -9,10 +9,13 @@ using PharmaFlow.Domain.Sites;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Domain.Users;
 using PharmaFlow.Infrastructure.Persistence.Conventions;
+using PharmaFlow.Application.Modules.Sites.Internal;
+using PharmaFlow.Application.Modules.Studies.Internal;
 
 namespace PharmaFlow.Infrastructure.Persistence;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+    : DbContext(options), IAppDbContext, ISitesDbContext, IStudiesDbContext
 {
     public DbSet<Study> Studies => Set<Study>();
 

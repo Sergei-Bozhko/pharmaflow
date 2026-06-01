@@ -1,13 +1,13 @@
 using Mediator;
 
-using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 
 namespace PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 
-internal sealed class CreateStudyHandler(IAppDbContext ctx, IClock clock)
+internal sealed class CreateStudyHandler(IStudiesDbContext ctx, IClock clock)
     : IRequestHandler<CreateStudyCommand, Result<StudyId>>
 {
     public async ValueTask<Result<StudyId>> Handle(CreateStudyCommand cmd, CancellationToken ct)

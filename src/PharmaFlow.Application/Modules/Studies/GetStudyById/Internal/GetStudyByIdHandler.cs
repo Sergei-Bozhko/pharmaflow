@@ -2,12 +2,12 @@ using Mediator;
 
 using Microsoft.EntityFrameworkCore;
 
-using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Common;
 
 namespace PharmaFlow.Application.Modules.Studies.GetStudyById.Internal;
 
-internal sealed class GetStudyByIdHandler(IAppDbContext ctx)
+internal sealed class GetStudyByIdHandler(IStudiesDbContext ctx)
     : IRequestHandler<GetStudyByIdQuery, Result<StudyDto>>
 {
     public async ValueTask<Result<StudyDto>> Handle(

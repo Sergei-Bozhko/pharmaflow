@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
-using PharmaFlow.Application.Studies.Queries.GetStudyById;
+using PharmaFlow.Application.Modules.Studies.GetStudyById;
+using PharmaFlow.Application.Modules.Studies.GetStudyById.Internal;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Infrastructure.Auth;
