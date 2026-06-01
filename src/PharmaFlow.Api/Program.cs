@@ -3,6 +3,8 @@ using PharmaFlow.Api.Endpoints;
 using PharmaFlow.Api.Endpoints.Studies;
 using PharmaFlow.Application;
 using PharmaFlow.Application.Common.Idempotency;
+using PharmaFlow.Application.Modules.Sites;
+using PharmaFlow.Application.Modules.Studies;
 using PharmaFlow.Infrastructure;
 
 using Scalar.AspNetCore;
@@ -15,6 +17,8 @@ builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1");
 builder.Services.AddPharmaFlowApplication();
+builder.Services.AddStudiesModule();
+builder.Services.AddSitesModule();
 builder.Services.AddPharmaFlowInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IIdempotencyKeyProvider, HttpIdempotencyKeyProvider>();
