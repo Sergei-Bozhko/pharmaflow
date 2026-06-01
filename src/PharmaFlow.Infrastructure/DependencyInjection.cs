@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 using PharmaFlow.Application.Common.Auth;
 using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Modules.Sites.Internal;
+using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;
@@ -34,6 +36,8 @@ public static class DependencyInjection
                 .AddInterceptors(sp.GetRequiredService<AuditingSaveChangesInterceptor>()));
 
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<IStudiesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<ISitesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
         return services;
     }
