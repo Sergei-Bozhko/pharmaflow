@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 
 using PharmaFlow.Application.Common.Idempotency;
 using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Modules.Sites.Internal;
+using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Participants;
 using PharmaFlow.Domain.Signatures;
@@ -12,7 +14,8 @@ using PharmaFlow.Infrastructure.Persistence.Conventions;
 
 namespace PharmaFlow.Infrastructure.Persistence;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+    : DbContext(options), IAppDbContext, ISitesDbContext, IStudiesDbContext
 {
     public DbSet<Study> Studies => Set<Study>();
 

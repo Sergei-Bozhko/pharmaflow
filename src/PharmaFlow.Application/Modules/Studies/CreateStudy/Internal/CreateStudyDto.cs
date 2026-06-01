@@ -1,10 +1,9 @@
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Studies.Queries.GetStudyById;
+namespace PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 
-public sealed record StudyDto
+public record CreateStudyDto
 (
-    Guid Id,
     string ProtocolNumber,
     string Title,
     StudyPhase Phase,
@@ -12,8 +11,5 @@ public sealed record StudyDto
     string SponsorOrganization,
     int PlannedEnrolment,
     DateOnly PlannedStartDate,
-    DateOnly PlannedEndDate,
-    StudyStatus Status,
-    DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt
+    DateOnly PlannedEndDate
 );

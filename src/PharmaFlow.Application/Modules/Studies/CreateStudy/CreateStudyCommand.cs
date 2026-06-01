@@ -1,9 +1,10 @@
+using PharmaFlow.Application.Common.Messaging;
+using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Studies.Commands.CreateStudy;
+namespace PharmaFlow.Application.Modules.Studies.CreateStudy;
 
-public record CreateStudyDto
-(
+public sealed record CreateStudyCommand(
     string ProtocolNumber,
     string Title,
     StudyPhase Phase,
@@ -12,4 +13,7 @@ public record CreateStudyDto
     int PlannedEnrolment,
     DateOnly PlannedStartDate,
     DateOnly PlannedEndDate
-);
+) : IIdempotentAppCommand<StudyId>
+{
+
+}

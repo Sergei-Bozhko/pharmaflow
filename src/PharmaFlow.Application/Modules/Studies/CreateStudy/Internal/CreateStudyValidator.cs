@@ -2,7 +2,7 @@ using FluentValidation;
 
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Studies.Commands.CreateStudy;
+namespace PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
 
 public sealed class CreateStudyValidator : AbstractValidator<CreateStudyCommand>
 {

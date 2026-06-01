@@ -1,6 +1,7 @@
 using PharmaFlow.Application.Common.Messaging;
+using PharmaFlow.Application.Modules.Studies.GetStudyById.Internal;
 using PharmaFlow.Domain.Common.Ids;
 
-namespace PharmaFlow.Application.Studies.Queries.GetStudyById;
+namespace PharmaFlow.Application.Modules.Studies.GetStudyById;
 
 public sealed record GetStudyByIdQuery(StudyId Id) : IAppQuery<StudyDto>;

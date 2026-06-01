@@ -1,8 +1,9 @@
 using Mediator;
 
 using PharmaFlow.Api.Common;
-using PharmaFlow.Application.Studies.Commands.CreateStudy;
-using PharmaFlow.Application.Studies.Queries.GetStudyById;
+using PharmaFlow.Application.Modules.Studies.CreateStudy;
+using PharmaFlow.Application.Modules.Studies.CreateStudy.Internal;
+using PharmaFlow.Application.Modules.Studies.GetStudyById;
 using PharmaFlow.Domain.Common.Ids;
 
 namespace PharmaFlow.Api.Endpoints.Studies;
