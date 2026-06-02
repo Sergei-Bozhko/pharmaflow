@@ -1,6 +1,6 @@
 using PharmaFlow.Domain.Studies;
 
-namespace PharmaFlow.Application.Modules.Studies.GetStudyById.Internal;
+namespace PharmaFlow.Application.Modules.Studies.Contracts;
 
 public sealed record StudyDto
 (
