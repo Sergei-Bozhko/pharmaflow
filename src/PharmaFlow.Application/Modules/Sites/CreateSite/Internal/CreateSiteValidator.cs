@@ -1,12 +1,10 @@
-using System.Data;
-
 using FluentValidation;
 
 using PharmaFlow.Domain.Sites;
 
 namespace PharmaFlow.Application.Modules.Sites.CreateSite.Internal;
 
-internal sealed class CreateSiteValidator : AbstractValidator<CreateSiteCommand>
+public sealed class CreateSiteValidator : AbstractValidator<CreateSiteCommand>
 {
     public CreateSiteValidator()
     {
