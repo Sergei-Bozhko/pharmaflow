@@ -11,5 +11,5 @@ public sealed record CreateSiteCommand(
     UserId PrincipalInvestigatorUserId
 ) : IIdempotentAppCommand<SiteId>
 {
-    
+
 }
