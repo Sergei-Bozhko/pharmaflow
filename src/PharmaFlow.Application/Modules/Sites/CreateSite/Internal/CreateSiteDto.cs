@@ -1,6 +1,4 @@
-using PharmaFlow.Domain.Common.Ids;
-
-namespace PharmaFlow.Application.Modules.Sites.Contracts;
+namespace PharmaFlow.Application.Modules.Sites.CreateSite.Internal;
 
 public sealed record CreateSiteDto(
     Guid StudyId,
