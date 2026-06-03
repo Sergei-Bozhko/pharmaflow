@@ -4,5 +4,5 @@ namespace PharmaFlow.Application.Modules.Sites.Contracts;
 
 public interface ISitesModule
 {
-    public Task<int> CountSitesForStudyAsync(StudyId studyId);
+    public Task<int> CountSitesForStudyAsync(StudyId studyId, CancellationToken ct);
 }
