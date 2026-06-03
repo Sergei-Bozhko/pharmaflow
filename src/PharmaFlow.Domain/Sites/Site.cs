@@ -16,6 +16,11 @@ public sealed partial class Site : Entity<SiteId>
     public DateTimeOffset? ActivationDate { get; private set; }
     public SiteStatus Status { get; private set; }
 
+    public const int MaxSiteNumberLength = 20;
+    public const int MaxNameLength = 200;
+    public const int CountryCodeLength = 2;
+
+
     private Site() { }
 
     private Site(
@@ -46,7 +51,7 @@ public sealed partial class Site : Entity<SiteId>
         IClock clock
         )
     {
-        if (string.IsNullOrWhiteSpace(siteNumber) || siteNumber.Length > 20)
+        if (string.IsNullOrWhiteSpace(siteNumber) || siteNumber.Length > MaxSiteNumberLength)
         {
             return Error.Validation(
                 "site.number.invalid",
@@ -54,15 +59,16 @@ public sealed partial class Site : Entity<SiteId>
             );
         }
 
-        if (string.IsNullOrWhiteSpace(name) || name.Length > 200)
         {
-            return Error.Validation(
-                "site.name.invalid",
-                "Site name must be non-empty and ≤ 200 characters."
-            );
+            if (string.IsNullOrWhiteSpace(name) || name.Length > MaxNameLength)
+            {
+                return Error.Validation(
+                    "site.name.invalid",
+                    "Site name must be non-empty and ≤ 200 characters.");
+            }
         }
 
-        if (!(country.Length == 2 && country.All(char.IsAsciiLetterUpper)))
+        if (!(country.Length == CountryCodeLength && country.All(char.IsAsciiLetterUpper)))
         {
             return Error.Validation(
                 "site.country.invalid",
