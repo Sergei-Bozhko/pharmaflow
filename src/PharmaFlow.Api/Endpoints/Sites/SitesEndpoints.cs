@@ -1,8 +1,8 @@
 using Mediator;
 
 using PharmaFlow.Api.Common;
-using PharmaFlow.Application.Modules.Sites.Contracts;
 using PharmaFlow.Application.Modules.Sites.CreateSite;
+using PharmaFlow.Application.Modules.Sites.CreateSite.Internal;
 using PharmaFlow.Domain.Common.Ids;
 
 namespace PharmaFlow.Api.Endpoints.Sites;
