@@ -61,10 +61,11 @@ public sealed partial class Site : Entity<SiteId>
 
         {
             if (string.IsNullOrWhiteSpace(name) || name.Length > MaxNameLength)
+            {
                 return Error.Validation(
                     "site.name.invalid",
-                    "Site name must be non-empty and ≤ 200 characters."
-                );
+                    "Site name must be non-empty and ≤ 200 characters.");
+            }
         }
 
         if (!(country.Length == CountryCodeLength && country.All(char.IsAsciiLetterUpper)))
