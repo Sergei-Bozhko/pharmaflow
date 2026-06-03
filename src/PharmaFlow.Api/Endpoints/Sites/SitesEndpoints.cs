@@ -3,6 +3,7 @@ using Mediator;
 using PharmaFlow.Api.Common;
 using PharmaFlow.Application.Modules.Sites.Contracts;
 using PharmaFlow.Application.Modules.Sites.CreateSite;
+using PharmaFlow.Domain.Common.Ids;
 
 namespace PharmaFlow.Api.Endpoints.Sites;
 
@@ -18,11 +19,11 @@ public static class SitesEndpoints
                                 CancellationToken ct) =>
         {
             var cmd = new CreateSiteCommand(
-                dto.StudyId,
+                new StudyId(dto.StudyId),
                 dto.SiteNumber,
                 dto.Name,
                 dto.Country,
-                dto.PrincipalInvestigatorUserId);
+                new UserId(dto.PrincipalInvestigatorUserId));
 
             var result = await sender.Send(cmd, ct);
 
