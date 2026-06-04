@@ -7,6 +7,7 @@
     <Project Path="src/PharmaFlow.Web/PharmaFlow.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/PharmaFlow.Tests.Architecture/PharmaFlow.Tests.Architecture.csproj" />
     <Project Path="tests/PharmaFlow.Tests.Integration/PharmaFlow.Tests.Integration.csproj" />
     <Project Path="tests/PharmaFlow.Tests.Unit/PharmaFlow.Tests.Unit.csproj" />
   </Folder>
