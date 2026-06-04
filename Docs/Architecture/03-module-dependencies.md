@@ -49,6 +49,44 @@ flowchart TB
 | **Tests.Unit** | Domain, Application, xUnit, FluentAssertions, NSubstitute. **Exception:** `EFCore` + `EFCore.InMemory` + Infrastructure for read-only model-snapshot tests (e.g. `StronglyTypedIdConventionTests`). No real DB connection. | Infrastructure beyond model-builder snapshot scope, real DB |
 | **Tests.Integration** | Api, Infrastructure, `Testcontainers.PostgreSql`, xUnit | Mocking the DB |
 
+## Module dependencies (within `Application`) — Sprint 5
+
+PFL-053..056 introduced a module layer *inside* `Application` — no new projects (physical split deferred, see below). Each module is a namespace slice under `PharmaFlow.Application.Modules.{Studies,Sites}`:
+
+- **`..Contracts..`** — the module's public API (`IStudiesModule`, DTOs). The only surface another module may reference.
+- **`..Internal..`** — handlers, the module-impl class (`StudiesModule`), and a narrow per-module persistence interface (`IStudiesDbContext`, exposing only that module's `DbSet`s over the single `AppDbContext`). `internal` where the framework allows; namespace-private by convention where `public` is forced (FluentValidation assembly scanner, System.Text.Json binding).
+- **`Application.Common..`** — module-agnostic primitives (pipeline behaviors, `Result<T>`). Modules depend on it; it depends on no module.
+
+Allowed module references:
+
+| From | May reference | MUST NOT reference |
+|---|---|---|
+| `Modules.Sites..` | `Modules.Studies.Contracts..`, `Application.Common..`, `Domain..` | `Modules.Studies.Internal..` (handlers, `StudiesModule`, `IStudiesDbContext`) |
+| `Modules.Studies..` | `Modules.Sites.Contracts..` (none consumed yet), `Application.Common..`, `Domain..` | `Modules.Sites.Internal..` |
+| `Application.Common..` | `Domain..` | any `Modules..` type |
+
+**Cross-module call example.** `CreateSite` confirms its `StudyId` via `IStudiesModule.StudyExistsAsync` (a Studies *contract*), never an EF join — `ISitesDbContext` has no `DbSet<Study>`, so the wrong path won't compile.
+
+**Enforcement (PFL-056).** `tests/PharmaFlow.Tests.Architecture` (ArchUnitNET, runs in CI right after build, before the unit step) encodes the rules so a violation fails the build, not a code review:
+
+| Rule | Enforces |
+|---|---|
+| R1 | No cross-module `..Internal..` dependency (symmetric Sites⇄Studies). |
+| R2 | Cross-module references only to `..Contracts..` (subsumes R1). |
+| R3 | `internal` handlers + module-impl classes stay non-public. *Narrowed* — validators/DTOs/DbContext interfaces are public by DI/STJ necessity, so the namespace + dependency rules, not visibility, are the real boundary. |
+| R4 | No foreign DbContext (`Sites` ⇏ `IStudiesDbContext`, symmetric) — catches a handler reaching past its contract into another module's persistence. |
+| R5 | `Application.Common..` references no `..Modules..` type. |
+
+### Deferred to S6/S7 — don't overclaim
+
+| Physical split | Status | Sprint |
+|---|---|---|
+| Separate module assemblies (one `.csproj` per module) | Deferred | S7 (service extraction) |
+| Schema-per-module DbContexts | Deferred | S6/S7 |
+| Integration events / outbox between modules | Deferred | S6 (outbox) |
+
+Today's boundary is **logical** (namespace + contracts + arch gate) over a single assembly and a single `AppDbContext`. That's deliberate: modularize in place now, extract physically later — lower-risk than a premature split, and the arch gate stops S6's outbox work from silently re-coupling the modules.
+
 ## Drift vs spec — current state (2026-05-10)
 
 | # | Project | Drift | Why it's there | Fix horizon |
@@ -74,4 +112,4 @@ If this command ever returns a row, Domain has been polluted. Investigate before
 
 - **No `IRepository<T>`** generic — per-aggregate repos in Application *interface*, Infrastructure *impl* (spec §9.3). The diagram doesn't show interfaces; assume every Application → Infrastructure dependency goes through a Domain or Application port.
 - **Application → Infrastructure?** No direct compile-time arrow. Application defines interfaces (`IStudyRepository`, `IAppDbContext`); Infrastructure implements; DI wires up at composition-root (`PharmaFlow.Api/Program.cs`). The Mermaid graph deliberately reflects compile-time edges only — runtime polymorphism lives elsewhere.
-- **Tests.Unit must NEVER reference Infrastructure for DB-touching tests** — if a test needs a DB connection, it's an integration test (move to `Tests.Integration`). The narrow exception is read-only model-builder snapshot tests using `EFCore.InMemory` (drift #3 above). NetArchTest.Rules can encode the rule + exception architecturally; deferred until a second violation tempts the simpler "Tests.Unit can't see Infrastructure at all" rule.
+- **Tests.Unit must NEVER reference Infrastructure for DB-touching tests** — if a test needs a DB connection, it's an integration test (move to `Tests.Integration`). The narrow exception is read-only model-builder snapshot tests using `EFCore.InMemory` (drift #3 above). PFL-056 added an ArchUnitNET gate (`tests/PharmaFlow.Tests.Architecture`) for *module* boundaries; this Tests.Unit⇏Infrastructure rule could be encoded there too, but is deferred until a second violation tempts the simpler "Tests.Unit can't see Infrastructure at all" rule.

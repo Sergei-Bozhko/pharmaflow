@@ -1,13 +1,20 @@
 # PharmaFlow
 
-> Clinical-trial study tracker — portfolio simulation on .NET 10 + Azure.
+> Modular monolith for regulated workloads — portfolio simulation on .NET 10 + Azure.
 
 [![CI](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml/badge.svg)](https://github.com/Sergei-Bozhko/pharmaflow/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT_(tbc)-lightgrey)
 
 ## What this is
 
-PharmaFlow is a clinical-trial study-tracker web app I'm building to demonstrate the technical controls a 21 CFR Part 11 / ALCOA+ regulated system actually needs — hash-chained audit trail, two-factor electronic signatures, separation-of-duty roles, immutability — on a modern .NET 10 + Azure stack. It's a portfolio simulation, not a real product: no QMS, no validated SOPs, no formal IQ/OQ/PQ. This is Project 1 of 3 in a 6-month rebuild aimed at a Senior .NET / pharma-tech role.
+PharmaFlow is a **modular monolith for regulated workloads**, built to demonstrate the modernization patterns such systems lean on, on a modern .NET 10 + Azure stack:
+
+- **Enforced module boundaries** — public contracts + `internal` handlers + narrow per-module persistence interfaces, policed by an ArchUnitNET build gate (not just a code-review convention).
+- **CQRS pipeline** — Logging → Validation → Idempotency → Audit → Transaction behaviors over a source-generated Mediator.
+- **Typed-error `Result<T>`** over exceptions for expected failures; **idempotent commands** keyed off an `Idempotency-Key` header.
+- **Tamper-evident audit trail** — hash-chained, written by an EF Core `SaveChangesInterceptor`.
+
+The concrete domain is **clinical trials (21 CFR Part 11 / ALCOA+)** — one example of a regulated domain where audit, idempotency, and separation of concerns are non-negotiable; the same controls map onto financial-services workloads (SOX-style audit, idempotent money movement). It's a portfolio simulation, not a real product: no QMS, no validated SOPs, no formal IQ/OQ/PQ. Project 1 of 3 in a 6-month rebuild aimed at a senior .NET modernization role.
 
 The 12-week build is divided into 12 one-week sprints. Sprint plan and per-sprint tickets live under `Planning/` (git-ignored — internal working docs).
 
@@ -43,13 +50,19 @@ Full list with rationale: see [Technical Specification §6](<Docs/PharmaFlow —
 - **Blazor Web App** (Server interactivity)
 - **Azure App Service / Key Vault / Blob Storage / Application Insights**
 - **Serilog + OpenTelemetry** → App Insights via OTLP
-- **xUnit v3** + **Testcontainers** + **FluentAssertions** + **NSubstitute**
+- **xUnit v3** + **Testcontainers** + **FluentAssertions** + **NSubstitute** + **ArchUnitNET** (module-boundary gate)
 
 ## Architecture
 
-Clean Architecture across seven projects: `Domain` (pure C# aggregates and value objects, no framework references), `Application` (CQRS commands / queries / handlers / pipeline behaviors), `Infrastructure` (EF Core, Blob adapter, JWT issuer, OTel wiring), `Api` (Minimal API endpoint groups, composition root), `Web` (Blazor Server), plus unit and integration test projects. Source-code dependencies point inward; runtime adapters are registered in DI from the composition root.
+Clean Architecture across seven projects: `Domain` (pure C# aggregates and value objects, no framework references), `Application` (CQRS commands / queries / handlers / pipeline behaviors), `Infrastructure` (EF Core, Blob adapter, JWT issuer, OTel wiring), `Api` (Minimal API endpoint groups, composition root), `Web` (Blazor Server), plus unit, integration, and architecture test projects. Source-code dependencies point inward; runtime adapters are registered in DI from the composition root.
 
-Full layer map and dependency rules: see [Technical Specification §7](<Docs/PharmaFlow — Technical Specification.md>).
+Within `Application`, code is organized into **modules** (`Modules/{Studies,Sites}`). Each module exposes a public contract (`IStudiesModule`) and keeps its handlers, module-impl class, and a narrow per-module `DbContext` interface (`IStudiesDbContext`, over the single `AppDbContext`) inside its `Internal` namespace. Cross-module calls go through contracts only — never a direct EF join or another module's persistence interface. The boundary is verified by an ArchUnitNET test gate (`tests/PharmaFlow.Tests.Architecture`) that fails the build on a violation.
+
+Full layer map and dependency rules: see [Technical Specification §7](<Docs/PharmaFlow — Technical Specification.md>) and [Docs/Architecture/03-module-dependencies](<Docs/Architecture/03-module-dependencies.md>).
+
+### How the boundaries are enforced (30-second version)
+
+Three mechanisms, increasing in teeth: (1) namespace + `internal` visibility keep handlers and per-module persistence out of another module's reach; (2) cross-module access is funnelled through public `..Contracts..` interfaces; (3) an ArchUnitNET test in CI fails the build if a module references another module's `..Internal..` types or DbContext. Deliberately **deferred to later sprints**: separate module assemblies (S7), schema-per-module DbContexts (S6/S7), and integration events / outbox between modules (S6). The honest story is *namespace modules + contracts + arch gate now, physical extraction next* — not "microservices-ready." The incremental, in-place modularization is lower-risk than a premature physical split, and is itself the talking point.
 
 ## Run locally
 
@@ -99,8 +112,9 @@ Migration `.cs` files land under `src/PharmaFlow.Infrastructure/Persistence/Migr
 
 ### Continuous integration
 
-CI runs in two ordered steps on the same `ubuntu-latest` runner:
+CI runs ordered steps on the same `ubuntu-latest` runner:
 
+- **Architecture** — `dotnet test --project tests/PharmaFlow.Tests.Architecture` (ArchUnitNET module-boundary rules; no DB, no Docker, fast — runs right after build so a boundary break fails early).
 - **Unit** — `dotnet test --project tests/PharmaFlow.Tests.Unit` (no DB; no Docker required).
 - **Integration** — `dotnet test --project tests/PharmaFlow.Tests.Integration`. Testcontainers spins up an ephemeral Postgres container per test session against the runner's pre-installed Docker daemon. ~30 s cold-start on first run; image cached afterwards.
 
