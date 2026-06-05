@@ -11,14 +11,8 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>, IAuditedEntity
     public uint RowVersion { get; private set; }
     public bool IsDeleted { get; private set; }
 
-    private readonly List<IDomainEvent> _events = [];
-    public IReadOnlyList<IDomainEvent> DomainEvents => _events;
-
     protected Entity() { }
     protected Entity(TId id) { Id = id; }
-
-    protected void Raise(IDomainEvent @event) => _events.Add(@event);
-    public void ClearEvents() => _events.Clear();
 
     public bool Equals(Entity<TId>? other) =>
         other is not null && EqualityComparer<TId>.Default.Equals(Id, other.Id);
