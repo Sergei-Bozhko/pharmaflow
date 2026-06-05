@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\src\PharmaFlow.Application\PharmaFlow.Application.csproj" />
     <ProjectReference Include="..\..\src\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
     <ProjectReference Include="..\..\src\PharmaFlow.Infrastructure\PharmaFlow.Infrastructure.csproj" />
+    <ProjectReference Include="..\PharmaFlow.Tests.Common\PharmaFlow.Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

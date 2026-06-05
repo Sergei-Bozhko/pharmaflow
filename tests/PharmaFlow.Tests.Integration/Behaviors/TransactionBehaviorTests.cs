@@ -9,7 +9,7 @@ using PharmaFlow.Application.Common.Messaging;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
-using PharmaFlow.Tests.Integration.Common.Helpers;
+using PharmaFlow.Tests.Common;
 using PharmaFlow.Tests.Integration.Fixtures;
 
 namespace PharmaFlow.Tests.Integration.Behaviors;
@@ -56,7 +56,7 @@ public class TransactionBehaviorTests(PostgresFixture fixture) : IntegrationTest
 
             MessageHandlerDelegate<TestCommand, Result> next = async (_, ct) =>
             {
-                ctx.Studies.Add(BuildStudy(clock, studyId));
+                ctx.Studies.Add(StudyBuilder.Create(clock, studyId));
                 await ctx.SaveChangesAsync(ct);
                 return Result.Success();
             };
@@ -88,7 +88,7 @@ public class TransactionBehaviorTests(PostgresFixture fixture) : IntegrationTest
 
             MessageHandlerDelegate<TestCommand, Result> next = async (_, ct) =>
             {
-                ctx.Studies.Add(BuildStudy(clock, studyId));
+                ctx.Studies.Add(StudyBuilder.Create(clock, studyId));
                 await ctx.SaveChangesAsync(ct);
                 return Result.Failure(Error.Validation("test.fail", "boom"));
             };
@@ -122,7 +122,7 @@ public class TransactionBehaviorTests(PostgresFixture fixture) : IntegrationTest
 
             MessageHandlerDelegate<TestCommand, Result> next = async (_, ct) =>
             {
-                ctx.Studies.Add(BuildStudy(clock, studyId));
+                ctx.Studies.Add(StudyBuilder.Create(clock, studyId));
                 await ctx.SaveChangesAsync(ct);
                 throw boom;
             };
@@ -138,27 +138,6 @@ public class TransactionBehaviorTests(PostgresFixture fixture) : IntegrationTest
             .FirstOrDefaultAsync(s => s.Id == studyId, TestContext.Current.CancellationToken);
 
         Assert.Null(persisted);
-    }
-
-    private static Study BuildStudy(FrozenClock clock, StudyId id)
-    {
-        var plannedStart = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
-        var plannedEnd = DateOnly.FromDateTime(clock.UtcNow.AddDays(90).UtcDateTime);
-
-        var result = Study.Create(
-            id,
-            "TxProtocol",
-            "TxTitle",
-            StudyPhase.PhaseI,
-            "TxArea",
-            "TxSponsor",
-            100,
-            plannedStart,
-            plannedEnd,
-            clock);
-
-        Assert.True(result.IsSuccess, result.Error?.Message);
-        return result.Value;
     }
 
     public sealed record TestCommand : IAppCommand;

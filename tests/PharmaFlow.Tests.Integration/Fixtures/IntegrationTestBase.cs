@@ -7,7 +7,7 @@ using PharmaFlow.Domain.Common;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Interceptors;
-using PharmaFlow.Tests.Integration.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Integration.Fixtures;
 

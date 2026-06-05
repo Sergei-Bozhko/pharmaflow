@@ -5,7 +5,7 @@ using System.Text.Json;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
-using PharmaFlow.Tests.Integration.Common.Helpers;
+using PharmaFlow.Tests.Common;
 using PharmaFlow.Tests.Integration.Fixtures;
 
 namespace PharmaFlow.Tests.Integration.Pipeline;

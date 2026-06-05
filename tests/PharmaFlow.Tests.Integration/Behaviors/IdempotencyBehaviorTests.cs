@@ -14,7 +14,7 @@ using PharmaFlow.Application.Common.Messaging;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Infrastructure.Persistence;
-using PharmaFlow.Tests.Integration.Common.Helpers;
+using PharmaFlow.Tests.Common;
 using PharmaFlow.Tests.Integration.Fixtures;
 
 namespace PharmaFlow.Tests.Integration.Behaviors;

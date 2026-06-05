@@ -1,7 +1,7 @@
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
-using PharmaFlow.Tests.Unit.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Audit;
 

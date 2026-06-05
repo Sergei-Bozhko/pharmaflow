@@ -4,7 +4,7 @@ using System.Text.Json;
 using PharmaFlow.Domain.Audit;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
-using PharmaFlow.Tests.Integration.Common.Helpers;
+using PharmaFlow.Tests.Common;
 using PharmaFlow.Tests.Integration.Fixtures;
 
 namespace PharmaFlow.Tests.Integration.Audit;
@@ -18,7 +18,7 @@ public class StudyAuditTrailTests(PostgresFixture fixture) : IntegrationTestBase
     public async Task Create_Study_writes_AuditEvent_row_in_same_txAsync()
     {
         var clock = new FrozenClock(FrozenInstant);
-        var study = BuildStudy(clock);
+        var study = StudyBuilder.Create(clock);
 
         await using var ctx = CreateContext(clock);
         ctx.Studies.Add(study);
@@ -47,7 +47,7 @@ public class StudyAuditTrailTests(PostgresFixture fixture) : IntegrationTestBase
     public async Task Update_Study_writes_AuditEvent_with_before_and_after_JSONAsync()
     {
         var clock = new FrozenClock(FrozenInstant);
-        var study = BuildStudy(clock);
+        var study = StudyBuilder.Create(clock);
 
         await using var ctx = CreateContext(clock);
         ctx.Studies.Add(study);
@@ -84,7 +84,7 @@ public class StudyAuditTrailTests(PostgresFixture fixture) : IntegrationTestBase
     public async Task SoftDelete_Study_writes_AuditEvent_with_SoftDelete_typeAsync()
     {
         var clock = new FrozenClock(FrozenInstant);
-        var study = BuildStudy(clock);
+        var study = StudyBuilder.Create(clock);
 
         await using var ctx = CreateContext(clock);
         ctx.Studies.Add(study);
@@ -99,26 +99,5 @@ public class StudyAuditTrailTests(PostgresFixture fixture) : IntegrationTestBase
 
         Assert.NotNull(softDelete.BeforeStateJson);
         Assert.Null(softDelete.AfterStateJson);
-    }
-
-    private static Study BuildStudy(FrozenClock clock)
-    {
-        var plannedStart = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
-        var plannedEnd = DateOnly.FromDateTime(clock.UtcNow.AddDays(90).UtcDateTime);
-
-        var result = Study.Create(
-            StudyId.New(),
-            "TestProtocol",
-            "testTitle",
-            StudyPhase.PhaseI,
-            "OncologyTest",
-            "TestSponsor",
-            100,
-            plannedStart,
-            plannedEnd,
-            clock);
-
-        Assert.True(result.IsSuccess, result.Error?.Message);
-        return result.Value;
     }
 }
