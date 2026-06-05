@@ -128,7 +128,7 @@ public class UserTests
     public void Activate_from_Invited_transitions_to_Active()
     {
         var u = NewValidUser();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.Activate(Clock);
 
@@ -142,7 +142,7 @@ public class UserTests
     public void Lock_from_Active_transitions_to_Locked()
     {
         var u = UserInActive();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.Lock("suspicious activity", Clock);
 
@@ -156,7 +156,7 @@ public class UserTests
     public void Unlock_from_Locked_transitions_to_Active()
     {
         var u = UserInLocked();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.Unlock(Clock);
 
@@ -170,7 +170,7 @@ public class UserTests
     public void Deactivate_from_Active_transitions_to_Deactivated()
     {
         var u = UserInActive();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.Deactivate("offboarded", Clock);
 
@@ -184,7 +184,7 @@ public class UserTests
     public void Deactivate_from_Locked_transitions_to_Deactivated()
     {
         var u = UserInLocked();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.Deactivate("offboarded", Clock);
 
@@ -198,7 +198,7 @@ public class UserTests
     public void EnrolMfa_from_Active_sets_MfaEnrolled_true()
     {
         var u = UserInActive();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         var result = u.EnrolMfa(Clock);
 
@@ -278,7 +278,7 @@ public class UserTests
         var u = UserInActive();
         u.RecordFailedLogin();
         u.RecordFailedLogin();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         u.RecordSuccessfulLogin(Clock);
 
@@ -291,7 +291,7 @@ public class UserTests
     public void RecordFailedLogin_increments_FailedLoginCount()
     {
         var u = UserInActive();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         u.RecordFailedLogin();
         u.RecordFailedLogin();
@@ -305,7 +305,7 @@ public class UserTests
     public void RecordPasswordChange_sets_PasswordLastChangedAt()
     {
         var u = UserInActive();
-        u.ClearEvents();
+        u.DequeueEvents();
 
         u.RecordPasswordChange(Clock);
 

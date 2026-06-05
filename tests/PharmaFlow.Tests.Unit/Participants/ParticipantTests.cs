@@ -183,7 +183,7 @@ public class ParticipantTests
     public void StartScreening_from_Prospective_transitions_to_Screening()
     {
         var p = NewValidParticipant();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.StartScreening(new DateOnly(2026, 5, 6), Clock);
 
@@ -198,7 +198,7 @@ public class ParticipantTests
     public void FailScreening_from_Screening_transitions_to_ScreenFailed()
     {
         var p = ParticipantInScreening();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.FailScreening("ineligible per protocol", Clock);
 
@@ -212,7 +212,7 @@ public class ParticipantTests
     public void Consent_from_Screening_transitions_to_Consented()
     {
         var p = ParticipantInScreening();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.Consent(Clock);
 
@@ -226,7 +226,7 @@ public class ParticipantTests
     public void Enrol_from_Consented_transitions_to_Enrolled()
     {
         var p = ParticipantInConsented();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.Enrol(new DateOnly(2026, 5, 7), Clock);
 
@@ -241,7 +241,7 @@ public class ParticipantTests
     public void Activate_from_Enrolled_transitions_to_Active()
     {
         var p = ParticipantInEnrolled();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.Activate(Clock);
 
@@ -255,7 +255,7 @@ public class ParticipantTests
     public void Complete_from_Active_transitions_to_Completed()
     {
         var p = ParticipantInActive();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.Complete(Clock);
 
@@ -269,7 +269,7 @@ public class ParticipantTests
     public void Withdraw_from_Active_transitions_to_Withdrawn()
     {
         var p = ParticipantInActive();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.Withdraw(new DateOnly(2026, 5, 8), "subject request", Clock);
 
@@ -285,7 +285,7 @@ public class ParticipantTests
     public void MarkLostToFollowUp_from_Active_transitions_to_LostToFollowUp()
     {
         var p = ParticipantInActive();
-        p.ClearEvents();
+        p.DequeueEvents();
 
         var result = p.MarkLostToFollowUp(Clock);
 

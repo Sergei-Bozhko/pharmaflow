@@ -146,7 +146,7 @@ public class SiteTests
     public void Activate_from_Initiated_transitions_to_Active_and_sets_ActivationDate()
     {
         var site = SiteInInitiated();
-        site.ClearEvents();
+        site.DequeueEvents();
 
         var result = site.Activate(ValidSignature("Sponsor sign"), ValidSignature("PI sign"), Clock);
 
@@ -161,7 +161,7 @@ public class SiteTests
     public void Close_from_Active_transitions_to_Closed_and_raises_SiteClosed()
     {
         var site = SiteInActive();
-        site.ClearEvents();
+        site.DequeueEvents();
 
         var result = site.Close(ValidSignature(), "trial complete", Clock);
 

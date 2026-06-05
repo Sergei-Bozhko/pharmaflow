@@ -35,7 +35,7 @@ public class EntityTests
         entity.RaisePublic(new TestEvent(DateTimeOffset.UtcNow));
         entity.RaisePublic(new TestEvent(DateTimeOffset.UtcNow));
 
-        entity.ClearEvents();
+        entity.DequeueEvents();
 
         Assert.Empty(entity.DomainEvents);
     }
@@ -87,7 +87,7 @@ public class EntityTests
         Assert.IsAssignableFrom<IReadOnlyList<IDomainEvent>>(entity.DomainEvents);
     }
 
-    private sealed class TestEntity : Entity<StudyId>
+    private sealed class TestEntity : AggregateRoot<StudyId>
     {
         public TestEntity() : base() { }
         public TestEntity(StudyId id) : base(id) { }
