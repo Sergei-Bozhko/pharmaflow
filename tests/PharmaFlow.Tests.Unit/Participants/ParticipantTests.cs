@@ -2,7 +2,7 @@ using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Participants;
 using PharmaFlow.Domain.Participants.Events;
-using PharmaFlow.Tests.Unit.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Participants;
 

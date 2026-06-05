@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PharmaFlow.Tests.Common</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

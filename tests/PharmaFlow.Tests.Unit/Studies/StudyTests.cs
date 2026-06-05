@@ -2,7 +2,7 @@ using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Domain.Studies.Events;
-using PharmaFlow.Tests.Unit.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Studies;
 

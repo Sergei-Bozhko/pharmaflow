@@ -7,7 +7,7 @@ using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Interceptors;
-using PharmaFlow.Tests.Unit.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Modules.Sites;
 

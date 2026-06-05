@@ -6,7 +6,7 @@ using PharmaFlow.Domain.Studies;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Interceptors;
-using PharmaFlow.Tests.Unit.Common.Helpers;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Studies;
 
