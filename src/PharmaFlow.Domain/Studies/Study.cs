@@ -4,7 +4,7 @@ using PharmaFlow.Domain.Studies.Events;
 
 namespace PharmaFlow.Domain.Studies;
 
-public sealed class Study : Entity<StudyId>
+public sealed class Study : AggregateRoot<StudyId>
 {
     public string ProtocolNumber { get; private set; } = default!;
     public string Title { get; private set; } = default!;

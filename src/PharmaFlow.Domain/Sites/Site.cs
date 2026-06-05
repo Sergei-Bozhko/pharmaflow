@@ -6,7 +6,7 @@ using PharmaFlow.Domain.Sites.Events;
 
 namespace PharmaFlow.Domain.Sites;
 
-public sealed partial class Site : Entity<SiteId>
+public sealed partial class Site : AggregateRoot<SiteId>
 {
     public StudyId StudyId { get; private set; }
     public string SiteNumber { get; private set; } = default!;

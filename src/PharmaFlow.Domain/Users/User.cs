@@ -6,7 +6,7 @@ using PharmaFlow.Domain.Users.Events;
 
 namespace PharmaFlow.Domain.Users;
 
-public sealed partial class User : Entity<UserId>
+public sealed partial class User : AggregateRoot<UserId>
 {
     public string Username { get; private set; } = default!;
     public string Email { get; private set; } = default!;
