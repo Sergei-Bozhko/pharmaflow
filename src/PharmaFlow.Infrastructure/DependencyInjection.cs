@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<ICurrentUser, SystemCurrentUser>();
         services.AddScoped<AuditingSaveChangesInterceptor>();
+        services.AddScoped<OutboxSaveChangesInterceptor>();
 
         var connectionString = configuration.GetConnectionString("Default")
             ?? throw new InvalidOperationException(
@@ -33,7 +34,8 @@ public static class DependencyInjection
             options
                 .UseNpgsql(connectionString)
                 .UseSnakeCaseNamingConvention()
-                .AddInterceptors(sp.GetRequiredService<AuditingSaveChangesInterceptor>()));
+                .AddInterceptors(sp.GetRequiredService<AuditingSaveChangesInterceptor>())
+                .AddInterceptors(sp.GetRequiredService<OutboxSaveChangesInterceptor>()));
 
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<IStudiesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
