@@ -11,11 +11,11 @@ internal sealed class StudyConfiguration : IEntityTypeConfiguration<Study>
     {
         b.HasKey(x => x.Id);
 
-        b.Property(x => x.ProtocolNumber).HasMaxLength(50).IsRequired();
-        b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+        b.Property(x => x.ProtocolNumber).HasMaxLength(Study.MaxProtocolNumberLength).IsRequired();
+        b.Property(x => x.Title).HasMaxLength(Study.MaxTitleLength).IsRequired();
         b.Property(x => x.Phase).HasConversion<string>().HasMaxLength(8).IsRequired();
-        b.Property(x => x.TherapeuticArea).HasMaxLength(100).IsRequired();
-        b.Property(x => x.SponsorOrganization).HasMaxLength(200).IsRequired();
+        b.Property(x => x.TherapeuticArea).HasMaxLength(Study.MaxTherapeuticAreaLength).IsRequired();
+        b.Property(x => x.SponsorOrganization).HasMaxLength(Study.MaxSponsorOrganizationLength).IsRequired();
         b.Property(x => x.PlannedEnrolment).IsRequired();
         b.Property(x => x.PlannedStartDate).IsRequired();
         b.Property(x => x.PlannedEndDate).IsRequired();
