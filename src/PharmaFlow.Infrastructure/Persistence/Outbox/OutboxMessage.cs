@@ -9,4 +9,15 @@ public sealed class OutboxMessage
     public DateTimeOffset? ProcessedOn { get; private set; }
     public int Attempts { get; private set; }
     public string? Error { get; private set; }
+
+    private OutboxMessage() { }
+
+    public OutboxMessage(string type, string payload, DateTimeOffset occurredOn)
+    {
+        Id = Guid.NewGuid();
+        Type = type;
+        Payload = payload;
+        OccurredOn = occurredOn;
+        Attempts = 0;
+    }
 }
