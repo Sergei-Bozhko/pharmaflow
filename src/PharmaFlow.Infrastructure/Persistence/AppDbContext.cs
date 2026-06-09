@@ -11,6 +11,7 @@ using PharmaFlow.Domain.Sites;
 using PharmaFlow.Domain.Studies;
 using PharmaFlow.Domain.Users;
 using PharmaFlow.Infrastructure.Persistence.Conventions;
+using PharmaFlow.Infrastructure.Persistence.Outbox;
 
 namespace PharmaFlow.Infrastructure.Persistence;
 
@@ -32,6 +33,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SignatureRecord> SignatureRecords => Set<SignatureRecord>();
 
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
+
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
