@@ -6,41 +6,6 @@ namespace PharmaFlow.Tests.Unit.Common;
 public class EntityTests
 {
     [Fact]
-    public void Raise_adds_event_to_DomainEvents()
-    {
-        var entity = new TestEntity();
-        entity.RaisePublic(new TestEvent(DateTimeOffset.UtcNow));
-        Assert.Single(entity.DomainEvents);
-    }
-
-    [Fact]
-    public void Raise_appends_in_order()
-    {
-        var entity = new TestEntity();
-        var first = new TestEvent(DateTimeOffset.UtcNow);
-        var second = new TestEvent(DateTimeOffset.UtcNow.AddSeconds(1));
-
-        entity.RaisePublic(first);
-        entity.RaisePublic(second);
-
-        Assert.Equal(2, entity.DomainEvents.Count);
-        Assert.Same(first, entity.DomainEvents[0]);
-        Assert.Same(second, entity.DomainEvents[1]);
-    }
-
-    [Fact]
-    public void ClearEvents_empties_the_list()
-    {
-        var entity = new TestEntity();
-        entity.RaisePublic(new TestEvent(DateTimeOffset.UtcNow));
-        entity.RaisePublic(new TestEvent(DateTimeOffset.UtcNow));
-
-        entity.DequeueEvents();
-
-        Assert.Empty(entity.DomainEvents);
-    }
-
-    [Fact]
     public void Default_IsDeleted_is_false()
     {
         var entity = new TestEntity();
@@ -80,20 +45,9 @@ public class EntityTests
         Assert.False(nullEntity == entity);
     }
 
-    [Fact]
-    public void DomainEvents_is_readonly()
-    {
-        var entity = new TestEntity();
-        Assert.IsAssignableFrom<IReadOnlyList<IDomainEvent>>(entity.DomainEvents);
-    }
-
-    private sealed class TestEntity : AggregateRoot<StudyId>
+    private sealed class TestEntity : Entity<StudyId>
     {
         public TestEntity() : base() { }
         public TestEntity(StudyId id) : base(id) { }
-        public void RaisePublic(IDomainEvent e) => Raise(e);
     }
-
-    private sealed record TestEvent(DateTimeOffset OccurredAt) : IDomainEvent;
-
 }
