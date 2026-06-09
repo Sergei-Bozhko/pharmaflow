@@ -4,7 +4,7 @@ using PharmaFlow.Domain.Users.Events;
 
 namespace PharmaFlow.Domain.Users;
 
-public sealed class RoleAssignment : Entity<RoleAssignmentId>
+public sealed class RoleAssignment : AggregateRoot<RoleAssignmentId>
 {
     public UserId UserId { get; private set; }
     public Role Role { get; private set; }

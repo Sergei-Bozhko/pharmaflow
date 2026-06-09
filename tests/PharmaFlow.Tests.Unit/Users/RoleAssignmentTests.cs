@@ -74,7 +74,7 @@ public class RoleAssignmentTests
     public void End_sets_EndedAt_and_raises_RoleAssignmentEnded()
     {
         var ra = NewValidAssignment();
-        ra.ClearEvents();
+        ra.DequeueEvents();
 
         var result = ra.End(SignatureId.New(), Clock);
 

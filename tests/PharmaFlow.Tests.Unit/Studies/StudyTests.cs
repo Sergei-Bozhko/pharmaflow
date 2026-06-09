@@ -206,7 +206,7 @@ public class StudyTests
     public void Activate_from_PendingApproval_transitions_to_Active_and_raises_StudyActivated()
     {
         var study = StudyInPendingApproval();
-        study.ClearEvents();
+        study.DequeueEvents();
 
         var result = study.Activate(ValidSignature(), Clock);
 
@@ -220,7 +220,7 @@ public class StudyTests
     public void Suspend_from_Active_transitions_to_Suspended_and_raises_StudySuspended()
     {
         var study = StudyInActive();
-        study.ClearEvents();
+        study.DequeueEvents();
 
         var result = study.Suspend(ValidSignature(), "safety review", Clock);
 
@@ -234,7 +234,7 @@ public class StudyTests
     public void Close_from_Active_transitions_to_Closed_and_raises_StudyClosed()
     {
         var study = StudyInActive();
-        study.ClearEvents();
+        study.DequeueEvents();
 
         var result = study.Close(ValidSignature(), "study complete", Clock);
 
@@ -259,7 +259,7 @@ public class StudyTests
     public void Archive_from_Closed_transitions_to_Archived_and_raises_StudyArchived()
     {
         var study = StudyInClosed();
-        study.ClearEvents();
+        study.DequeueEvents();
 
         var result = study.Archive(Clock);
 
