@@ -3,11 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using PharmaFlow.Application.Common.Auth;
+using PharmaFlow.Application.Common.Events;
 using PharmaFlow.Application.Common.Persistence;
 using PharmaFlow.Application.Modules.Sites.Internal;
 using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Infrastructure.Auth;
+using PharmaFlow.Infrastructure.Outbox;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Interceptors;
 using PharmaFlow.Infrastructure.Time;
@@ -23,6 +25,11 @@ public static class DependencyInjection
         services.AddSingleton<IClock, SystemClock>();
         services.AddScoped<ICurrentUser, SystemCurrentUser>();
         services.AddScoped<AuditingSaveChangesInterceptor>();
+
+        services.AddSingleton(new OutboxOptions());
+        services.AddScoped<IDomainEventDispatcher, LoggingDomainEventDispatcher>();
+        services.AddScoped<IOutboxProcessor, OutboxProcessor>();
+        services.AddHostedService<OutboxProcessorService>();
         services.AddScoped<OutboxSaveChangesInterceptor>();
 
         var connectionString = configuration.GetConnectionString("Default")
