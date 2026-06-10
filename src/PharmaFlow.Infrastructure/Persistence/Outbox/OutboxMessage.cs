@@ -20,4 +20,12 @@ public sealed class OutboxMessage
         OccurredOn = occurredOn;
         Attempts = 0;
     }
+
+    public void MarkProcessed(DateTimeOffset processedOn) => ProcessedOn = processedOn;
+
+    public void RecordFailure(string error)
+    {
+        Attempts++;
+        Error = error;
+    }
 }
