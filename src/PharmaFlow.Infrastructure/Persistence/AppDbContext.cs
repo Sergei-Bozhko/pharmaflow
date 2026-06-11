@@ -21,6 +21,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Study> Studies => Set<Study>();
 
     public DbSet<Site> Sites => Set<Site>();
+    public DbSet<KnownStudy> KnownStudies => Set<KnownStudy>();
 
     public DbSet<Participant> Participants => Set<Participant>();
 
@@ -35,6 +36,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
