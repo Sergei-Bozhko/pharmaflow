@@ -62,7 +62,11 @@ Full layer map and dependency rules: see [Technical Specification §7](<Docs/Pha
 
 ### How the boundaries are enforced (30-second version)
 
-Three mechanisms, increasing in teeth: (1) namespace + `internal` visibility keep handlers and per-module persistence out of another module's reach; (2) cross-module access is funnelled through public `..Contracts..` interfaces; (3) an ArchUnitNET test in CI fails the build if a module references another module's `..Internal..` types or DbContext. Deliberately **deferred to later sprints**: separate module assemblies (S7), schema-per-module DbContexts (S6/S7), and integration events / outbox between modules (S6). The honest story is *namespace modules + contracts + arch gate now, physical extraction next* — not "microservices-ready." The incremental, in-place modularization is lower-risk than a premature physical split, and is itself the talking point.
+Three mechanisms, increasing in teeth: (1) namespace + `internal` visibility keep handlers and per-module persistence out of another module's reach; (2) cross-module access is funnelled through public `..Contracts..` interfaces; (3) an ArchUnitNET test in CI fails the build if a module references another module's `..Internal..` types or DbContext.
+
+Cross-module **communication** is event-driven, not direct calls: a producer raises a domain event, an EF interceptor writes it to an outbox table **in the same transaction** as the aggregate, and a background processor dispatches it in-proc (Mediator `INotification`) to a subscriber in another module. Delivery is **at-least-once** with **idempotent consumers** — a re-delivered event produces no duplicate effect. That is what makes a module extractable later: atomic event capture + at-least-once delivery + idempotent consumers survive a physical split unchanged. Event contracts live in `..Contracts..` and subscribers reach the producer only through them, enforced by the same arch gate (rules R6/R7); see [ADR-0004](<Docs/ADRs/0004-transactional-outbox.md>).
+
+Deliberately **deferred to later sprints**: separate module assemblies (S7), schema-per-module DbContexts (S6/S7), and a message broker / HTTP transport in place of in-proc dispatch (S7). The honest story is *namespace modules + contracts + arch gate + in-proc outbox now, physical extraction next* — not "microservices-ready." The incremental, in-place modularization is lower-risk than a premature physical split, and is itself the talking point.
 
 ## Run locally
 
