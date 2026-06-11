@@ -12,7 +12,7 @@ using PharmaFlow.Infrastructure.Persistence;
 namespace PharmaFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611062006_AddKnownStudies")]
+    [Migration("20260611064151_AddKnownStudies")]
     partial class AddKnownStudies
     {
         /// <inheritdoc />
@@ -71,9 +71,9 @@ namespace PharmaFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("study_id");
 
-                    b.Property<DateTimeOffset>("RegistredAt")
+                    b.Property<DateTimeOffset>("RegisteredAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("registred_at");
+                        .HasColumnName("registered_at");
 
                     b.HasKey("StudyId")
                         .HasName("pk_known_studies");

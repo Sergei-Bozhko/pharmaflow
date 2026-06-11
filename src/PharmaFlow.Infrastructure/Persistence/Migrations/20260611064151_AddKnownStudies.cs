@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -17,7 +16,7 @@ namespace PharmaFlow.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     study_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    registred_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    registered_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -68,9 +68,9 @@ namespace PharmaFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("study_id");
 
-                    b.Property<DateTimeOffset>("RegistredAt")
+                    b.Property<DateTimeOffset>("RegisteredAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("registred_at");
+                        .HasColumnName("registered_at");
 
                     b.HasKey("StudyId")
                         .HasName("pk_known_studies");
