@@ -1,5 +1,7 @@
 using Mediator;
 
+using Microsoft.EntityFrameworkCore;
+
 using PharmaFlow.Application.Modules.Sites.Internal;
 using PharmaFlow.Application.Modules.Studies.Contracts;
 
