@@ -76,6 +76,10 @@ Allowed module references:
 | R3 | `internal` handlers + module-impl classes stay non-public. *Narrowed* — validators/DTOs/DbContext interfaces are public by DI/STJ necessity, so the namespace + dependency rules, not visibility, are the real boundary. |
 | R4 | No foreign DbContext (`Sites` ⇏ `IStudiesDbContext`, symmetric) — catches a handler reaching past its contract into another module's persistence. |
 | R5 | `Application.Common..` references no `..Modules..` type. |
+| R6 | Integration events (`INotification`) reside in a module's `..Contracts..`, never `..Internal..` — the R2 boundary applied to events, so a consumer can only reference what's contracted. |
+| R7 | `INotificationHandler` subscribers reach the producer module only via its `..Contracts..`, never its `..Internal..` — the cross-module event path stays contract-only. |
+
+**Cross-module events (S6, PFL-058→063).** Modules also communicate through a **transactional outbox**: a producer raises a domain event, an EF interceptor writes it to `outbox_messages` in the same transaction as the aggregate, and a background processor dispatches it in-proc (Mediator `INotification`) to a subscriber in another module — at-least-once, with idempotent consumers. Integration events live in the producer's `..Contracts..` (R6); subscribers reach the producer only through them (R7). Rationale and what's deferred to S7: [ADR-0004](<../ADRs/0004-transactional-outbox.md>).
 
 ### Deferred to S6/S7 — don't overclaim
 
@@ -83,7 +87,7 @@ Allowed module references:
 |---|---|---|
 | Separate module assemblies (one `.csproj` per module) | Deferred | S7 (service extraction) |
 | Schema-per-module DbContexts | Deferred | S6/S7 |
-| Integration events / outbox between modules | Deferred | S6 (outbox) |
+| Integration events / outbox between modules | **Done** (S6) | in-proc outbox, at-least-once — [ADR-0004](<../ADRs/0004-transactional-outbox.md>); broker/HTTP transport still S7 |
 
 Today's boundary is **logical** (namespace + contracts + arch gate) over a single assembly and a single `AppDbContext`. That's deliberate: modularize in place now, extract physically later — lower-risk than a premature split, and the arch gate stops S6's outbox work from silently re-coupling the modules.
 
