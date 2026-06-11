@@ -49,6 +49,7 @@ Bad:
 - **Multi-instance processing** — `SELECT ... FOR UPDATE SKIP LOCKED` row claiming, so the single-instance assumption can be dropped.
 - **Schema-per-module outbox** — today one `outbox_messages` over the single `AppDbContext`.
 - **Map-at-harvest integration contract** — serialize the stable cross-module contract into the outbox instead of the raw domain event, decoupling replay from domain-type churn.
+- **Consumer-side inbox / dedup** — outbox guarantees at-least-once *delivery*; the consumer still absorbs *duplicates*. In-proc, the processor's `processed_on` plus naturally-idempotent subscribers cover that. Once a consumer crosses the process boundary (separate service over a broker) it can no longer see the producer's `processed_on`, so effectively-once needs a consumer-side inbox keyed by message id, or continued per-handler idempotency (today's choice). A generic inbox is redundant under in-proc single-DB.
 
 ## Refs
 
