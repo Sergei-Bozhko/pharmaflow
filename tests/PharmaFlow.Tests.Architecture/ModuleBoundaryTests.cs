@@ -1,6 +1,8 @@
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
 
+using Mediator;
+
 using PharmaFlow.Application.Modules.Studies.Contracts;
 
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
@@ -81,5 +83,29 @@ public class ModuleBoundaryTests
     public void Common_must_not_depend_on_any_module() =>
         Types().That().ResideInNamespaceMatching(Tree(Common))
             .Should().NotDependOnAny(Types().That().ResideInNamespaceMatching(Tree(App + ".Modules")))
+            .Check(Arch);
+
+    // regex matching any namespace whose tail contains a `.Contracts` segment
+    private const string ContractsSegment = @".*\.Contracts($|\..*)";
+
+    // R6 — integration events (INotification) live in a module's Contracts, never Internal.
+    // The S5 contracts rule applied to events: a consumer can only reference what's in Contracts.
+    [Fact]
+    public void Integration_events_reside_in_Contracts() =>
+        Types().That()
+            .ImplementInterface(typeof(INotification))
+            .And().ResideInNamespaceMatching(Tree(App + ".Modules"))
+            .Should().ResideInNamespaceMatching(ContractsSegment)
+            .Check(Arch);
+
+    // R7 — a subscriber (INotificationHandler) reaches the producer module only via Contracts,
+    // never its Internal. Focused restatement of R2 on the event path (the producer here is Studies).
+    [Fact]
+    public void Notification_handlers_reach_Studies_only_via_Contracts() =>
+        Types().That()
+            .ImplementInterface(typeof(INotificationHandler<>))
+            .Should().NotDependOnAny(Types().That()
+                .ResideInNamespaceMatching(Tree(Studies))
+                .And().DoNotResideInNamespaceMatching(Tree(Studies + ".Contracts")))
             .Check(Arch);
 }
