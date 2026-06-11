@@ -54,7 +54,7 @@ public class StudyCreatedHandlerTests
 
         var row = await ctx.Set<KnownStudy>().SingleAsync(ct);
         Assert.Equal(studyId, row.StudyId);
-        Assert.Equal(Occurred, row.RegistredAt);
+        Assert.Equal(Occurred, row.RegisteredAt);
     }
 
     private static AppDbContext NewContext() =>
