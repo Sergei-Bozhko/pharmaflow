@@ -1,8 +1,11 @@
 using System.Text.Json;
 
+using Mediator;
+
 using Microsoft.EntityFrameworkCore;
 
 using PharmaFlow.Application.Common.Events;
+using PharmaFlow.Application.Modules.Studies.Contracts;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Domain.Common.Ids;
 using PharmaFlow.Domain.Studies.Events;
@@ -31,7 +34,7 @@ public class OutboxProcessorTests
 
         Assert.Equal(1, count);
         Assert.Single(dispatcher.Dispatched);
-        Assert.IsType<StudyCreated>(dispatcher.Dispatched[0]);
+        Assert.IsType<StudyCreatedIntegrationEvent>(dispatcher.Dispatched[0]);
 
         var row = await ctx.Set<OutboxMessage>().SingleAsync(ct);
         Assert.Equal(Clock.UtcNow, row.ProcessedOn);
@@ -172,20 +175,20 @@ public class OutboxProcessorTests
             .UseInMemoryDatabase($"outbox-proc-{Guid.NewGuid()}")
             .Options);
 
-    private sealed class RecordingDispatcher : IDomainEventDispatcher
+    private sealed class RecordingDispatcher : IIntegrationEventDispatcher
     {
-        public List<IDomainEvent> Dispatched { get; } = [];
+        public List<INotification> Dispatched { get; } = [];
 
-        public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken)
         {
-            Dispatched.Add(domainEvent);
+            Dispatched.Add(notification);
             return Task.CompletedTask;
         }
     }
 
-    private sealed class ThrowingDispatcher : IDomainEventDispatcher
+    private sealed class ThrowingDispatcher : IIntegrationEventDispatcher
     {
-        public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken) =>
+        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("boom");
     }
 }

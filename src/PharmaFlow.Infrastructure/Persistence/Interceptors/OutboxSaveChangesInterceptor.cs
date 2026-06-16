@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using PharmaFlow.Domain.Common;
+using PharmaFlow.Infrastructure.Outbox;
 using PharmaFlow.Infrastructure.Persistence.Outbox;
 
 namespace PharmaFlow.Infrastructure.Persistence.Interceptors;
@@ -28,10 +29,13 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         {
             foreach (var evt in root.DequeueEvents())
             {
+                var integrationEvt = IntegrationEventMap.ToIntegrationEvent(evt);
+                if (integrationEvt is null) continue;
+
                 context.Set<OutboxMessage>().Add(
                     new OutboxMessage(
-                        type: OutboxSerialization.NameOf(evt),
-                        payload: JsonSerializer.Serialize(evt, evt.GetType(), OutboxSerialization.Options),
+                        type: OutboxSerialization.NameOf(integrationEvt),
+                        payload: JsonSerializer.Serialize(integrationEvt, integrationEvt.GetType(), OutboxSerialization.Options),
                         occurredOn: evt.OccurredAt
                     )
                 );

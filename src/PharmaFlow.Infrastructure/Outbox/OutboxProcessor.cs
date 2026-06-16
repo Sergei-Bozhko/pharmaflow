@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Mediator;
+
 using Microsoft.EntityFrameworkCore;
 
 using PharmaFlow.Application.Common.Events;
@@ -11,7 +13,7 @@ namespace PharmaFlow.Infrastructure.Outbox;
 
 public sealed class OutboxProcessor(
     AppDbContext db,
-    IDomainEventDispatcher dispatcher,
+    IIntegrationEventDispatcher dispatcher,
     IClock clock,
     OutboxOptions options
 ) : IOutboxProcessor
@@ -29,10 +31,10 @@ public sealed class OutboxProcessor(
         {
             try
             {
-                var eventType = OutboxSerialization.Resolve(message.Type);
-                var domainEvent = (IDomainEvent)JsonSerializer.Deserialize(
-                    message.Payload, eventType, OutboxSerialization.Options)!;
-                await dispatcher.DispatchAsync(domainEvent, cancellationToken);
+                var contractType = OutboxSerialization.Resolve(message.Type);
+                var integrationEvent = (INotification)JsonSerializer.Deserialize(
+                    message.Payload, contractType, OutboxSerialization.Options)!;
+                await dispatcher.DispatchAsync(integrationEvent, cancellationToken);
                 message.MarkProcessed(clock.UtcNow);
             }
             catch (Exception ex)
