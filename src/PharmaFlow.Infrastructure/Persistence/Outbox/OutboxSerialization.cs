@@ -25,7 +25,7 @@ public static class OutboxSerialization
         ByType.TryGetValue(notification.GetType(), out var name)
             ? name
             : throw new InvalidOperationException(
-                $"Domain event {notification.GetType().Name} is not registered in OutboxSerialization. Add it to the map.");
+                $"Integration event {notification.GetType().Name} is not registered in OutboxSerialization. Add it to the map.");
 
     public static Type Resolve(string type) =>
         ByName.TryGetValue(type, out var t)
