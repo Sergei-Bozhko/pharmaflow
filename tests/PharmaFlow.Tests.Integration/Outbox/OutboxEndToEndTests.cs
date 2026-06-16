@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using Mediator;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -222,9 +224,9 @@ public class OutboxEndToEndTests(PostgresFixture fixture) : IntegrationTestBase(
         plannedEndDate = "2026-09-01",
     };
 
-    private sealed class NoopDispatcher : IDomainEventDispatcher
+    private sealed class NoopDispatcher : IIntegrationEventDispatcher
     {
-        public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken) =>
+        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
             Task.CompletedTask;
     }
 }

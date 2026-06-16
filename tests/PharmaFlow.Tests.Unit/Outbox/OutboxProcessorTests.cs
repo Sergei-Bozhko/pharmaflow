@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Mediator;
+
 using Microsoft.EntityFrameworkCore;
 
 using PharmaFlow.Application.Common.Events;
@@ -172,20 +174,20 @@ public class OutboxProcessorTests
             .UseInMemoryDatabase($"outbox-proc-{Guid.NewGuid()}")
             .Options);
 
-    private sealed class RecordingDispatcher : IDomainEventDispatcher
+    private sealed class RecordingDispatcher : IIntegrationEventDispatcher
     {
-        public List<IDomainEvent> Dispatched { get; } = [];
+        public List<INotification> Dispatched { get; } = [];
 
-        public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
+        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken)
         {
-            Dispatched.Add(domainEvent);
+            Dispatched.Add(notification);
             return Task.CompletedTask;
         }
     }
 
-    private sealed class ThrowingDispatcher : IDomainEventDispatcher
+    private sealed class ThrowingDispatcher : IIntegrationEventDispatcher
     {
-        public Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken) =>
+        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("boom");
     }
 }
