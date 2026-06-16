@@ -10,7 +10,7 @@ public static class IntegrationEventMap
 {
     public static INotification? ToIntegrationEvent(IDomainEvent e) => e switch
     {
-        StudyCreated s => new StudyCreatedIntegrationEvent(s.StudyId.Value, e.OccurredAt),
+        StudyCreated s => new StudyCreatedIntegrationEvent(s.StudyId.Value, s.OccurredAt),
         _ => null,
     };
 }
