@@ -24,24 +24,12 @@ public class MediatorDomainEventDispatcherTests
         var dispatcher = new MediatorDomainEventDispatcher(publisher);
         var studyId = StudyId.New();
 
-        await dispatcher.DispatchAsync(new StudyCreated(studyId, Occurred), ct);
+        await dispatcher.DispatchAsync(new StudyCreatedIntegrationEvent(studyId.Value, Occurred), ct);
 
         var published = Assert.Single(publisher.Published);
         var integrationEvent = Assert.IsType<StudyCreatedIntegrationEvent>(published);
         Assert.Equal(studyId.Value, integrationEvent.StudyId);
         Assert.Equal(Occurred, integrationEvent.OccurredAt);
-    }
-
-    [Fact]
-    public async Task A_domain_event_with_no_mapping_publishes_nothingAsync()
-    {
-        var ct = TestContext.Current.CancellationToken;
-        var publisher = new RecordingPublisher();
-        var dispatcher = new MediatorDomainEventDispatcher(publisher);
-
-        await dispatcher.DispatchAsync(new SiteCreated(SiteId.New(), StudyId.New(), Occurred), ct);
-
-        Assert.Empty(publisher.Published);
     }
 
     private sealed class RecordingPublisher : IPublisher

@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using Microsoft.EntityFrameworkCore;
 
+using PharmaFlow.Application.Modules.Studies.Contracts;
 using PharmaFlow.Domain.Studies.Events;
 using PharmaFlow.Infrastructure.Auth;
 using PharmaFlow.Infrastructure.Persistence;
@@ -63,10 +64,10 @@ public class OutboxInterceptorTests
 
         var message = await ctx.Set<OutboxMessage>().SingleAsync(ct);
         var clrType = OutboxSerialization.Resolve(message.Type);
-        var restored = (StudyCreated)JsonSerializer.Deserialize(
+        var restored = (StudyCreatedIntegrationEvent)JsonSerializer.Deserialize(
             message.Payload, clrType, OutboxSerialization.Options)!;
 
-        Assert.Equal(study.Id, restored.StudyId);
+        Assert.Equal(study.Id.Value, restored.StudyId);
         Assert.Equal(Clock.UtcNow, restored.OccurredAt);
     }
 
