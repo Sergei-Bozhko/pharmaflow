@@ -31,7 +31,7 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
             {
                 var integrationEvt = IntegrationEventMap.ToIntegrationEvent(evt);
                 if (integrationEvt is null) continue;
-                
+
                 context.Set<OutboxMessage>().Add(
                     new OutboxMessage(
                         type: OutboxSerialization.NameOf(integrationEvt),
