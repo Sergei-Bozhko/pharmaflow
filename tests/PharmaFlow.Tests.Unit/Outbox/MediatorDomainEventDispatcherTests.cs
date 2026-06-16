@@ -21,7 +21,7 @@ public class MediatorDomainEventDispatcherTests
     {
         var ct = TestContext.Current.CancellationToken;
         var publisher = new RecordingPublisher();
-        var dispatcher = new MediatorDomainEventDispatcher(publisher);
+        var dispatcher = new MediatorIntegrationEventDispatcher(publisher);
         var studyId = StudyId.New();
 
         await dispatcher.DispatchAsync(new StudyCreatedIntegrationEvent(studyId.Value, Occurred), ct);

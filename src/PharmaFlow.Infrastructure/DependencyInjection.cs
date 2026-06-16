@@ -27,7 +27,7 @@ public static class DependencyInjection
         services.AddScoped<AuditingSaveChangesInterceptor>();
 
         services.AddSingleton(new OutboxOptions());
-        services.AddScoped<IIntegrationEventDispatcher, MediatorDomainEventDispatcher>();
+        services.AddScoped<IIntegrationEventDispatcher, MediatorIntegrationEventDispatcher>();
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddHostedService<OutboxProcessorService>();
         services.AddScoped<OutboxSaveChangesInterceptor>();

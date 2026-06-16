@@ -7,7 +7,7 @@ using PharmaFlow.Domain.Studies.Events;
 
 namespace PharmaFlow.Infrastructure.Outbox;
 
-public sealed class MediatorDomainEventDispatcher(IPublisher publisher) : IIntegrationEventDispatcher
+public sealed class MediatorIntegrationEventDispatcher(IPublisher publisher) : IIntegrationEventDispatcher
 {
     public async Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
         await publisher.Publish(notification, cancellationToken);
