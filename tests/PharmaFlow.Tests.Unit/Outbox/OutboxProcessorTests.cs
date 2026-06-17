@@ -138,6 +138,23 @@ public class OutboxProcessorTests
         Assert.Null(newerRow.ProcessedOn);
     }
 
+    // PFL-065: the processor threads the outbox row id to the dispatcher as the dedup key the
+    // consumer inbox (PFL-066) needs — transport-agnostic, proven here without HTTP.
+    [Fact]
+    public async Task Dispatch_receives_the_outbox_row_id_as_the_dedup_keyAsync()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var ctx = NewContext();
+        var row = NewStudyCreatedRow(Clock.UtcNow);
+        await SeedAsync(ctx, row, ct);
+        var dispatcher = new RecordingDispatcher();
+        var processor = new OutboxProcessor(ctx, dispatcher, Clock, new OutboxOptions());
+
+        await processor.ProcessBatchAsync(ct);
+
+        Assert.Equal(row.Id, Assert.Single(dispatcher.DispatchedIds));
+    }
+
     [Fact]
     public async Task Unregistered_event_type_is_treated_as_a_failure_not_a_crashAsync()
     {
@@ -178,17 +195,19 @@ public class OutboxProcessorTests
     private sealed class RecordingDispatcher : IIntegrationEventDispatcher
     {
         public List<INotification> Dispatched { get; } = [];
+        public List<Guid> DispatchedIds { get; } = [];
 
-        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken)
+        public Task DispatchAsync(INotification notification, Guid messageId, CancellationToken cancellationToken)
         {
             Dispatched.Add(notification);
+            DispatchedIds.Add(messageId);
             return Task.CompletedTask;
         }
     }
 
     private sealed class ThrowingDispatcher : IIntegrationEventDispatcher
     {
-        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
+        public Task DispatchAsync(INotification notification, Guid messageId, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("boom");
     }
 }

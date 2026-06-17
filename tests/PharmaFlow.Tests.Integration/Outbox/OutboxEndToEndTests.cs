@@ -226,7 +226,7 @@ public class OutboxEndToEndTests(PostgresFixture fixture) : IntegrationTestBase(
 
     private sealed class NoopDispatcher : IIntegrationEventDispatcher
     {
-        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken) =>
+        public Task DispatchAsync(INotification notification, Guid messageId, CancellationToken cancellationToken) =>
             Task.CompletedTask;
     }
 }
