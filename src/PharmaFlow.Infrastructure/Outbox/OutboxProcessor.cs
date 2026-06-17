@@ -34,7 +34,7 @@ public sealed class OutboxProcessor(
                 var contractType = OutboxSerialization.Resolve(message.Type);
                 var integrationEvent = (INotification)JsonSerializer.Deserialize(
                     message.Payload, contractType, OutboxSerialization.Options)!;
-                await dispatcher.DispatchAsync(integrationEvent, cancellationToken);
+                await dispatcher.DispatchAsync(integrationEvent, message.Id, cancellationToken);
                 message.MarkProcessed(clock.UtcNow);
             }
             catch (Exception ex)
