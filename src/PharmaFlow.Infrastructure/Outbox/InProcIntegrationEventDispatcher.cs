@@ -1,9 +1,6 @@
 using Mediator;
 
 using PharmaFlow.Application.Common.Events;
-using PharmaFlow.Application.Modules.Studies.Contracts;
-using PharmaFlow.Domain.Common;
-using PharmaFlow.Domain.Studies.Events;
 
 namespace PharmaFlow.Infrastructure.Outbox;
 
