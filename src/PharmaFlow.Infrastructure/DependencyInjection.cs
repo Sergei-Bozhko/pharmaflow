@@ -27,7 +27,10 @@ public static class DependencyInjection
         services.AddScoped<AuditingSaveChangesInterceptor>();
 
         services.AddSingleton(new OutboxOptions());
-        services.AddScoped<IIntegrationEventDispatcher, MediatorIntegrationEventDispatcher>();
+        services.AddScoped<InProcIntegrationEventDispatcher>();
+        services.AddHttpClient<HttpIntegrationEventDispatcher>(c =>
+            c.BaseAddress = new Uri(configuration["Outbox:ConsumerBaseUrl"] ?? "http://localhost"));
+        services.AddScoped<IIntegrationEventDispatcher, TransportRoutingDispatcher>();
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddHostedService<OutboxProcessorService>();
         services.AddScoped<OutboxSaveChangesInterceptor>();
