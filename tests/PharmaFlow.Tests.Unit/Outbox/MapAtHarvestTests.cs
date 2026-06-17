@@ -165,7 +165,7 @@ public class MapAtHarvestTests
     {
         public List<INotification> Dispatched { get; } = [];
 
-        public Task DispatchAsync(INotification notification, CancellationToken cancellationToken)
+        public Task DispatchAsync(INotification notification, Guid messageId, CancellationToken cancellationToken)
         {
             Dispatched.Add(notification);
             return Task.CompletedTask;

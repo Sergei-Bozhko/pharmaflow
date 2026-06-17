@@ -2,29 +2,28 @@ using Mediator;
 
 using PharmaFlow.Application.Modules.Studies.Contracts;
 using PharmaFlow.Domain.Common.Ids;
-using PharmaFlow.Domain.Sites.Events;
-using PharmaFlow.Domain.Studies.Events;
 using PharmaFlow.Infrastructure.Outbox;
 
 namespace PharmaFlow.Tests.Unit.Outbox;
 
-// PFL-061 dispatch seam. The processor hands the dispatcher a *domain* event; the dispatcher
-// maps it to the published cross-module *integration* event. Publishing is opt-in per event:
-// only events with a mapping arm cross the boundary.
-public class MediatorDomainEventDispatcherTests
+// PFL-065 in-proc transport (rename of the old map-on-dispatch seam). Post-PFL-064 the dispatcher
+// no longer maps — it receives the stored integration contract and publishes it as-is. The in-proc
+// impl ignores the message id: in-proc dedup is the processor's processed_on, not a consumer inbox.
+public class InProcIntegrationEventDispatcherTests
 {
     private static readonly DateTimeOffset Occurred =
         new(2026, 6, 11, 12, 0, 0, TimeSpan.Zero);
 
     [Fact]
-    public async Task StudyCreated_is_mapped_and_published_onceAsync()
+    public async Task Publishes_the_contract_onceAsync()
     {
         var ct = TestContext.Current.CancellationToken;
         var publisher = new RecordingPublisher();
-        var dispatcher = new MediatorIntegrationEventDispatcher(publisher);
+        var dispatcher = new InProcIntegrationEventDispatcher(publisher);
         var studyId = StudyId.New();
 
-        await dispatcher.DispatchAsync(new StudyCreatedIntegrationEvent(studyId.Value, Occurred), ct);
+        await dispatcher.DispatchAsync(
+            new StudyCreatedIntegrationEvent(studyId.Value, Occurred), Guid.NewGuid(), ct);
 
         var published = Assert.Single(publisher.Published);
         var integrationEvent = Assert.IsType<StudyCreatedIntegrationEvent>(published);
