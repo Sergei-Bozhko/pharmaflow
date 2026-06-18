@@ -1,7 +1,111 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
+@using PharmaFlow.Web.Services
+@inject PharmaFlowApiClient Api
 
-<PageTitle>Home</PageTitle>
+<PageTitle>PharmaFlow Console</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Dashboard</h1>
+    <button class="btn btn-outline-secondary btn-sm" @onclick="LoadAsync" disabled="@_loading">
+        @(_loading ? "Refreshing…" : "Refresh")
+    </button>
+</div>
 
-Welcome to your new app.
+@if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted mb-2">Integration transport</h6>
+                <span class="badge fs-6 @(_transport == "Http" ? "text-bg-primary" : "text-bg-secondary")">@_transport</span>
+                <a class="btn btn-link btn-sm float-end p-0" href="transport">change</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Studies</h6><span class="fs-3">@_studies</span>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Sites</h6><span class="fs-3">@_sites</span>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Outbox</h6>
+            <span class="fs-3">@_outboxTotal</span> <span class="text-muted">total</span>
+            @if (_outboxPending > 0)
+            {
+                <span class="badge text-bg-warning ms-2">@_outboxPending pending</span>
+            }
+            @if (_outboxParked > 0)
+            {
+                <span class="badge text-bg-danger ms-2">@_outboxParked parked</span>
+            }
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Inbox</h6><span class="fs-3">@_inbox</span>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Known studies</h6><span class="fs-3">@_known</span>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Audit events</h6><span class="fs-3">@_audit</span>
+        </div></div>
+    </div>
+</div>
+
+<p class="text-muted mt-4">
+    Create a study, assign a site, flip the transport, and watch the
+    <a href="observability">observability</a> tables fill as the outbox processor runs.
+</p>
+
+@code {
+    private bool _loading;
+    private string? _error;
+    private string _transport = "—";
+    private int _studies, _sites, _inbox, _known, _audit, _outboxTotal, _outboxPending, _outboxParked;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _error = null;
+        try
+        {
+            _transport = await Api.TransportAsync();
+            _studies = (await Api.StudiesAsync()).Count;
+            _sites = (await Api.SitesAsync()).Count;
+            _inbox = (await Api.InboxAsync()).Count;
+            _known = (await Api.KnownStudiesAsync()).Count;
+            _audit = (await Api.AuditAsync()).Count;
+
+            var outbox = await Api.OutboxAsync();
+            _outboxTotal = outbox.Count;
+            _outboxPending = outbox.Count(o => o.ProcessedOn is null && o.Attempts < 5);
+            _outboxParked = outbox.Count(o => o.ProcessedOn is null && o.Attempts >= 5);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Can't reach the Api (check ApiBaseUrl / is it running?) — {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
