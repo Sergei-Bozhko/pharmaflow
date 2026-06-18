@@ -23,6 +23,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Site> Sites => Set<Site>();
     public DbSet<KnownStudy> KnownStudies => Set<KnownStudy>();
 
+    public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
+
     public DbSet<Participant> Participants => Set<Participant>();
 
     public DbSet<User> Users => Set<User>();
@@ -36,7 +38,6 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<IdempotencyRecord> IdempotencyRecords => Set<IdempotencyRecord>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
