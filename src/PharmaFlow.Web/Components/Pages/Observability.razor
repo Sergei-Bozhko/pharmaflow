@@ -1,0 +1,150 @@
+@page "/observability"
+@rendermode InteractiveServer
+@using PharmaFlow.Web.Services
+@implements IDisposable
+@inject PharmaFlowApiClient Api
+
+<PageTitle>Observability</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Observability</h1>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="auto" @bind="_auto" />
+        <label class="form-check-label" for="auto">Auto-refresh (3s)</label>
+        <button class="btn btn-outline-secondary btn-sm ms-2" @onclick="LoadAsync">Refresh now</button>
+    </div>
+</div>
+
+@if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+<h2 class="h5">Outbox <small class="text-muted">(producer side)</small></h2>
+<table class="table table-sm table-striped align-middle mb-4">
+    <thead><tr><th>Type</th><th>Occurred</th><th>Status</th><th>Attempts</th><th>Error</th></tr></thead>
+    <tbody>
+        @foreach (var o in _outbox)
+        {
+            <tr>
+                <td><code>@o.Type</code></td>
+                <td>@o.OccurredOn.LocalDateTime.ToString("HH:mm:ss")</td>
+                <td>
+                    @if (o.ProcessedOn is not null)
+                    {
+                        <span class="badge text-bg-success">processed</span>
+                    }
+                    else if (o.Attempts >= 5)
+                    {
+                        <span class="badge text-bg-danger">parked</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-warning">pending</span>
+                    }
+                </td>
+                <td>@o.Attempts</td>
+                <td class="text-danger small">@o.Error</td>
+            </tr>
+        }
+        @if (_outbox.Count == 0) { <tr><td colspan="5" class="text-muted">empty</td></tr> }
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2 class="h5">Inbox <small class="text-muted">(consumer dedup)</small></h2>
+        <table class="table table-sm table-striped align-middle mb-4">
+            <thead><tr><th>Message id</th><th>Received</th></tr></thead>
+            <tbody>
+                @foreach (var i in _inbox)
+                {
+                    <tr><td><code>@Short(i.MessageId)</code></td><td>@i.ReceivedAt.LocalDateTime.ToString("HH:mm:ss")</td></tr>
+                }
+                @if (_inbox.Count == 0) { <tr><td colspan="2" class="text-muted">empty</td></tr> }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h5">Known studies <small class="text-muted">(ACL projection)</small></h2>
+        <table class="table table-sm table-striped align-middle mb-4">
+            <thead><tr><th>Study id</th><th>Registered</th></tr></thead>
+            <tbody>
+                @foreach (var k in _known)
+                {
+                    <tr><td><code>@Short(k.StudyId)</code></td><td>@k.RegisteredAt.LocalDateTime.ToString("HH:mm:ss")</td></tr>
+                }
+                @if (_known.Count == 0) { <tr><td colspan="2" class="text-muted">empty</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h2 class="h5">Audit log</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Occurred</th><th>Event</th><th>Target</th><th>Actor</th><th>Reason</th></tr></thead>
+    <tbody>
+        @foreach (var a in _audit)
+        {
+            <tr>
+                <td>@a.OccurredAt.LocalDateTime.ToString("HH:mm:ss")</td>
+                <td><span class="badge text-bg-info">@a.EventType</span></td>
+                <td>@a.TargetEntityType <span class="text-muted">@a.TargetEntityId</span></td>
+                <td><code>@Short(a.ActorUserId)</code></td>
+                <td>@a.ReasonForChange</td>
+            </tr>
+        }
+        @if (_audit.Count == 0) { <tr><td colspan="5" class="text-muted">empty</td></tr> }
+    </tbody>
+</table>
+
+@code {
+    private IReadOnlyList<OutboxRow> _outbox = [];
+    private IReadOnlyList<InboxRow> _inbox = [];
+    private IReadOnlyList<KnownStudyRow> _known = [];
+    private IReadOnlyList<AuditRow> _audit = [];
+    private bool _auto = true;
+    private string? _error;
+    private CancellationTokenSource? _cts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        _cts = new CancellationTokenSource();
+        _ = LoopAsync(_cts.Token);
+    }
+
+    private async Task LoopAsync(CancellationToken token)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                if (_auto)
+                {
+                    await LoadAsync();
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (OperationCanceledException) { /* component disposed */ }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _outbox = await Api.OutboxAsync();
+            _inbox = await Api.InboxAsync();
+            _known = await Api.KnownStudiesAsync();
+            _audit = await Api.AuditAsync();
+            _error = null;
+        }
+        catch (Exception ex) { _error = $"Can't reach the Api — {ex.Message}"; }
+    }
+
+    private static string Short(Guid g) => g.ToString()[..8];
+
+    public void Dispose() => _cts?.Cancel();
+}

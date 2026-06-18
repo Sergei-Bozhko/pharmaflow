@@ -1,0 +1,138 @@
+@page "/studies"
+@rendermode InteractiveServer
+@using PharmaFlow.Web.Services
+@inject PharmaFlowApiClient Api
+
+<PageTitle>Studies</PageTitle>
+
+<h1>Studies</h1>
+
+<div class="card mb-4">
+    <div class="card-header">Create a study</div>
+    <div class="card-body">
+        <EditForm Model="_form" OnValidSubmit="SubmitAsync">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Protocol number</label>
+                    <InputText class="form-control" @bind-Value="_form.ProtocolNumber" />
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Title</label>
+                    <InputText class="form-control" @bind-Value="_form.Title" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Phase</label>
+                    <InputSelect class="form-select" @bind-Value="_form.Phase">
+                        <option value="1">Phase I</option>
+                        <option value="2">Phase II</option>
+                        <option value="3">Phase III</option>
+                        <option value="4">Phase IV</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Therapeutic area</label>
+                    <InputText class="form-control" @bind-Value="_form.TherapeuticArea" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Planned enrolment</label>
+                    <InputNumber class="form-control" @bind-Value="_form.PlannedEnrolment" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sponsor organization</label>
+                    <InputText class="form-control" @bind-Value="_form.SponsorOrganization" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Planned start</label>
+                    <InputDate class="form-control" @bind-Value="_form.PlannedStartDate" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Planned end</label>
+                    <InputDate class="form-control" @bind-Value="_form.PlannedEndDate" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3" disabled="@_busy">Create study</button>
+        </EditForm>
+
+        @if (_message is not null)
+        {
+            <div class="alert @(_isError ? "alert-danger" : "alert-success") mt-3 mb-0">@_message</div>
+        }
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="h5 mb-0">All studies (@_studies.Count)</h2>
+    <button class="btn btn-outline-secondary btn-sm" @onclick="LoadAsync">Refresh</button>
+</div>
+
+<table class="table table-sm table-striped align-middle">
+    <thead>
+        <tr><th>Protocol</th><th>Title</th><th>Phase</th><th>Status</th><th>Sponsor</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var s in _studies)
+        {
+            <tr>
+                <td><code>@s.ProtocolNumber</code></td>
+                <td>@s.Title</td>
+                <td>@s.Phase</td>
+                <td><span class="badge text-bg-secondary">@s.Status</span></td>
+                <td>@s.SponsorOrganization</td>
+                <td>@s.CreatedAt.LocalDateTime.ToString("g")</td>
+            </tr>
+        }
+        @if (_studies.Count == 0)
+        {
+            <tr><td colspan="6" class="text-muted">No studies yet.</td></tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private readonly StudyForm _form = new();
+    private IReadOnlyList<StudyRow> _studies = [];
+    private bool _busy;
+    private bool _isError;
+    private string? _message;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try { _studies = await Api.StudiesAsync(); }
+        catch (Exception ex) { _isError = true; _message = $"Load failed: {ex.Message}"; }
+    }
+
+    private async Task SubmitAsync()
+    {
+        _busy = true;
+        _message = null;
+        try
+        {
+            var error = await Api.CreateStudyAsync(new CreateStudyRequest(
+                _form.ProtocolNumber, _form.Title, _form.Phase, _form.TherapeuticArea,
+                _form.SponsorOrganization, _form.PlannedEnrolment, _form.PlannedStartDate, _form.PlannedEndDate));
+
+            _isError = error is not null;
+            _message = error ?? $"Created study {_form.ProtocolNumber}.";
+            if (error is null)
+            {
+                await LoadAsync();
+            }
+        }
+        catch (Exception ex) { _isError = true; _message = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private sealed class StudyForm
+    {
+        public string ProtocolNumber { get; set; } = "";
+        public string Title { get; set; } = "";
+        public int Phase { get; set; } = 1;
+        public string TherapeuticArea { get; set; } = "Oncology";
+        public string SponsorOrganization { get; set; } = "Acme Pharma";
+        public int PlannedEnrolment { get; set; } = 50;
+        public DateOnly PlannedStartDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public DateOnly PlannedEndDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddMonths(6));
+    }
+}

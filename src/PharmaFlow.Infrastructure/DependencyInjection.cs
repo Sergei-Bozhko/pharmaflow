@@ -51,6 +51,8 @@ public static class DependencyInjection
         services.AddScoped<IStudiesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<ISitesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
+        services.AddScoped<Application.Operator.IOperatorReadModel, Operator.OperatorReadModel>();
+
         return services;
     }
 }

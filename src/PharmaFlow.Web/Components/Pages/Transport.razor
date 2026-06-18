@@ -1,0 +1,62 @@
+@page "/transport"
+@rendermode InteractiveServer
+@using PharmaFlow.Web.Services
+@inject PharmaFlowApiClient Api
+
+<PageTitle>Transport</PageTitle>
+
+<h1>Integration transport</h1>
+
+<p class="text-muted">
+    The strangler-fig / rollback lever. The producer's outbox dispatches each integration event either
+    <strong>in-process</strong> (Mediator) or over <strong>HTTP</strong> to the consumer webhook. Flipping it
+    takes effect on the next dispatch — no restart. Watch the
+    <a href="observability">observability</a> tables to see the difference (HTTP fills the inbox).
+</p>
+
+@if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+<div class="card" style="max-width: 32rem;">
+    <div class="card-body">
+        <p class="mb-2">Current transport:</p>
+        <p>
+            <span class="badge fs-5 @(_current == "Http" ? "text-bg-primary" : "text-bg-secondary")">
+                @(_current ?? "…")
+            </span>
+        </p>
+        <div class="btn-group" role="group">
+            <button class="btn @(_current == "InProc" ? "btn-secondary" : "btn-outline-secondary")"
+                    @onclick='() => SetAsync("InProc")' disabled="@_busy">
+                In-process
+            </button>
+            <button class="btn @(_current == "Http" ? "btn-primary" : "btn-outline-primary")"
+                    @onclick='() => SetAsync("Http")' disabled="@_busy">
+                HTTP
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? _current;
+    private string? _error;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _current = await Api.TransportAsync(); }
+        catch (Exception ex) { _error = $"Can't reach the Api — {ex.Message}"; }
+    }
+
+    private async Task SetAsync(string transport)
+    {
+        _busy = true;
+        _error = null;
+        try { _current = await Api.SetTransportAsync(transport); }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+}
