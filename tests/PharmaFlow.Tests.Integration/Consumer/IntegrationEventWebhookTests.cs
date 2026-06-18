@@ -70,6 +70,38 @@ public class IntegrationEventWebhookTests(PostgresFixture fixture) : Integration
         Assert.Equal(1, await verify.Set<InboxMessage>().CountAsync(ct));
     }
 
+    // --- 2b. Input validation: a foreign type / malformed payload is a 400, not a 500 --
+    [Fact]
+    public async Task An_unsupported_event_type_is_rejectedAsync()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var factory = new PharmaFlowWebApplicationFactory(Fixture.ConnectionString);
+        using var client = factory.CreateClient();
+
+        var foreign = new { messageId = Guid.NewGuid(), type = "SiteCreated", payload = "{}" };
+        using var response = await client.PostAsJsonAsync(WebhookPath, foreign, ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using var verify = CreateContext(new FrozenClock(Occurred));
+        Assert.Equal(0, await verify.Set<InboxMessage>().CountAsync(ct)); // nothing recorded
+        Assert.Equal(0, await verify.Set<KnownStudy>().CountAsync(ct));
+    }
+
+    [Fact]
+    public async Task A_malformed_payload_is_rejectedAsync()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var factory = new PharmaFlowWebApplicationFactory(Fixture.ConnectionString);
+        using var client = factory.CreateClient();
+
+        var bad = new { messageId = Guid.NewGuid(), type = "StudyCreated", payload = "{ not json" };
+        using var response = await client.PostAsJsonAsync(WebhookPath, bad, ct);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await using var verify = CreateContext(new FrozenClock(Occurred));
+        Assert.Equal(0, await verify.Set<InboxMessage>().CountAsync(ct));
+    }
+
     // --- 3. End-to-end over HTTP (flag = Http) ----------------------------------------
     [Fact]
     public async Task Event_is_delivered_over_http_and_projected_when_the_flag_is_setAsync()

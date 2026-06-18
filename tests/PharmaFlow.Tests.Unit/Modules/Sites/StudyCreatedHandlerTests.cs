@@ -4,6 +4,7 @@ using PharmaFlow.Application.Modules.Sites.Internal;
 using PharmaFlow.Application.Modules.Sites.StudyProjection.Internal;
 using PharmaFlow.Application.Modules.Studies.Contracts;
 using PharmaFlow.Infrastructure.Persistence;
+using PharmaFlow.Tests.Common;
 
 namespace PharmaFlow.Tests.Unit.Modules.Sites;
 
@@ -15,12 +16,20 @@ public class StudyCreatedHandlerTests
     private static readonly DateTimeOffset Occurred =
         new(2026, 6, 11, 12, 0, 0, TimeSpan.Zero);
 
+    // The consumer's clock — when it learned of the study (PFL-066: RegisteredAt is learned-at,
+    // not the wire OccurredAt, so the in-proc and HTTP paths converge on the same semantic).
+    private static readonly DateTimeOffset Learned =
+        new(2026, 6, 18, 8, 0, 0, TimeSpan.Zero);
+
+    private static StudyCreatedHandler NewHandler(AppDbContext ctx) =>
+        new(ctx, new FrozenClock(Learned));
+
     [Fact]
     public async Task Handling_the_same_event_twice_creates_one_rowAsync()
     {
         var ct = TestContext.Current.CancellationToken;
         await using var ctx = NewContext();
-        var handler = new StudyCreatedHandler(ctx);
+        var handler = NewHandler(ctx);
         var @event = new StudyCreatedIntegrationEvent(Guid.NewGuid(), Occurred);
 
         await handler.Handle(@event, ct);
@@ -34,7 +43,7 @@ public class StudyCreatedHandlerTests
     {
         var ct = TestContext.Current.CancellationToken;
         await using var ctx = NewContext();
-        var handler = new StudyCreatedHandler(ctx);
+        var handler = NewHandler(ctx);
 
         await handler.Handle(new StudyCreatedIntegrationEvent(Guid.NewGuid(), Occurred), ct);
         await handler.Handle(new StudyCreatedIntegrationEvent(Guid.NewGuid(), Occurred), ct);
@@ -43,18 +52,19 @@ public class StudyCreatedHandlerTests
     }
 
     [Fact]
-    public async Task The_projected_row_carries_the_event_id_and_timestampAsync()
+    public async Task The_projected_row_carries_the_study_id_and_the_learned_at_timestampAsync()
     {
         var ct = TestContext.Current.CancellationToken;
         await using var ctx = NewContext();
-        var handler = new StudyCreatedHandler(ctx);
+        var handler = NewHandler(ctx);
         var studyId = Guid.NewGuid();
 
         await handler.Handle(new StudyCreatedIntegrationEvent(studyId, Occurred), ct);
 
         var row = await ctx.Set<KnownStudy>().SingleAsync(ct);
         Assert.Equal(studyId, row.StudyId);
-        Assert.Equal(Occurred, row.RegisteredAt);
+        Assert.Equal(Learned, row.RegisteredAt);     // consumer clock, not the wire OccurredAt
+        Assert.NotEqual(Occurred, row.RegisteredAt);
     }
 
     private static AppDbContext NewContext() =>

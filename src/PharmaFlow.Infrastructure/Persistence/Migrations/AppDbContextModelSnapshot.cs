@@ -69,9 +69,9 @@ namespace PharmaFlow.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("message_id");
 
-                    b.Property<DateTimeOffset>("RecievedAt")
+                    b.Property<DateTimeOffset>("ReceivedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("recieved_at");
+                        .HasColumnName("received_at");
 
                     b.HasKey("MessageId")
                         .HasName("pk_inbox_messages");

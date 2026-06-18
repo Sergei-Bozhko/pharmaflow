@@ -17,7 +17,7 @@ namespace PharmaFlow.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     message_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    recieved_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    received_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
