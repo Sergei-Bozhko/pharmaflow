@@ -8,5 +8,6 @@ public interface ISitesDbContext
 {
     DbSet<Site> Sites { get; }
     DbSet<KnownStudy> KnownStudies { get; }
+    DbSet<InboxMessage> InboxMessages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
