@@ -22,7 +22,7 @@ public static class IntegrationEventEndpoints
             {
                 if (await ctx.InboxMessages.AnyAsync(i => i.MessageId == env.MessageId, ct))
                     return Results.Ok();
-                
+
                 var dto = JsonSerializer.Deserialize<StudyCreatedTransportDto>(env.Payload,
                     OutboxSerialization.Options)!;
                 ctx.InboxMessages.Add(new InboxMessage(env.MessageId, clock.UtcNow));
