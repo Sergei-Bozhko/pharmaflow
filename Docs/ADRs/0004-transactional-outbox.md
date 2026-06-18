@@ -45,11 +45,13 @@ Bad:
 
 ## Deferred to S7+
 
-- **Broker / HTTP transport** — replace in-proc Mediator dispatch once a module is physically extracted.
+> **Update (S7, [ADR-0005](<0005-strangler-fig-http-transport.md>)):** *HTTP transport*, *Map-at-harvest*, and *Consumer-side inbox* are now **done in-solution** — the in-proc dispatch tail is swappable for an HTTP POST behind a flag, the outbox stores the stable contract, and the consumer dedups via a message-id inbox behind an ACL. ADR-0005 supersedes those three bullets; the broker, multi-instance, schema-per-module, and a *separate deployable/DB* remain deferred.
+
+- **Broker / HTTP transport** — replace in-proc Mediator dispatch once a module is physically extracted. *(HTTP transport done in-solution — ADR-0005; broker still deferred.)*
 - **Multi-instance processing** — `SELECT ... FOR UPDATE SKIP LOCKED` row claiming, so the single-instance assumption can be dropped.
 - **Schema-per-module outbox** — today one `outbox_messages` over the single `AppDbContext`.
-- **Map-at-harvest integration contract** — serialize the stable cross-module contract into the outbox instead of the raw domain event, decoupling replay from domain-type churn.
-- **Consumer-side inbox / dedup** — outbox guarantees at-least-once *delivery*; the consumer still absorbs *duplicates*. In-proc, the processor's `processed_on` plus naturally-idempotent subscribers cover that. Once a consumer crosses the process boundary (separate service over a broker) it can no longer see the producer's `processed_on`, so effectively-once needs a consumer-side inbox keyed by message id, or continued per-handler idempotency (today's choice). A generic inbox is redundant under in-proc single-DB.
+- **Map-at-harvest integration contract** — serialize the stable cross-module contract into the outbox instead of the raw domain event, decoupling replay from domain-type churn. *(Done — ADR-0005 / PFL-064.)*
+- **Consumer-side inbox / dedup** — outbox guarantees at-least-once *delivery*; the consumer still absorbs *duplicates*. In-proc, the processor's `processed_on` plus naturally-idempotent subscribers cover that. Once a consumer crosses the process boundary it can no longer see the producer's `processed_on`, so effectively-once needs a consumer-side inbox keyed by message id. *(Done — ADR-0005 / PFL-066: an `inbox_messages` table behind an ACL.)*
 
 ## Refs
 

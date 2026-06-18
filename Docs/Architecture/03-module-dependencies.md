@@ -81,13 +81,16 @@ Allowed module references:
 
 **Cross-module events (S6, PFL-058→063).** Modules also communicate through a **transactional outbox**: a producer raises a domain event, an EF interceptor writes it to `outbox_messages` in the same transaction as the aggregate, and a background processor dispatches it in-proc (Mediator `INotification`) to a subscriber in another module — at-least-once, with idempotent consumers. Integration events live in the producer's `..Contracts..` (R6); subscribers reach the producer only through them (R7). Rationale and what's deferred to S7: [ADR-0004](<../ADRs/0004-transactional-outbox.md>).
 
+**Cross-module transport over HTTP (S7, PFL-064→066).** The dispatch tail is now **pluggable behind a flag**: the outbox stores the stable `..Contracts..` integration event (map-at-harvest), and `TransportRoutingDispatcher` sends it either in-proc (Mediator) or over **HTTP POST** to a consumer webhook, selected per call by `OutboxOptions.Transport`. The consumer protects itself with an **anti-corruption layer** (its own transport DTO → `KnownStudy`, never the producer's CLR type across the wire) and an **inbox** keyed by message id (the cross-boundary replacement for `processed_on`, since the consumer can't see it over HTTP). The flag is the **rollback lever** — flipping HTTP→in-proc is a config change, not a redeploy, proven loss-free by a drill test. This is the strangler-fig seam; the consumer is still **in-solution** (loopback), the separate deployable + DB deferred. Rationale: [ADR-0005](<../ADRs/0005-strangler-fig-http-transport.md>).
+
 ### Deferred to S6/S7 — don't overclaim
 
 | Physical split | Status | Sprint |
 |---|---|---|
-| Separate module assemblies (one `.csproj` per module) | Deferred | S7 (service extraction) |
+| Separate module assemblies (one `.csproj` per module) + separate deployable/DB | Deferred | post-S9 (real extraction); the transport seam is built for it |
 | Schema-per-module DbContexts | Deferred | S6/S7 |
-| Integration events / outbox between modules | **Done** (S6) | in-proc outbox, at-least-once — [ADR-0004](<../ADRs/0004-transactional-outbox.md>); broker/HTTP transport still S7 |
+| Integration events / outbox between modules | **Done** (S6) | in-proc outbox, at-least-once — [ADR-0004](<../ADRs/0004-transactional-outbox.md>) |
+| Cross-module transport over **HTTP** (in-solution) + consumer ACL + inbox | **Done** (S7) | strangler flag, effectively-once, rollback drill — [ADR-0005](<../ADRs/0005-strangler-fig-http-transport.md>); broker + separate deployable still later |
 
 Today's boundary is **logical** (namespace + contracts + arch gate) over a single assembly and a single `AppDbContext`. That's deliberate: modularize in place now, extract physically later — lower-risk than a premature split, and the arch gate stops S6's outbox work from silently re-coupling the modules.
 
