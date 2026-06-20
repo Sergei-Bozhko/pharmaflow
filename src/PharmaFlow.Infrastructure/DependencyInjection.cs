@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using PharmaFlow.Application.Common.Auth;
 using PharmaFlow.Application.Common.Events;
 using PharmaFlow.Application.Common.Persistence;
+using PharmaFlow.Application.Legacy;
 using PharmaFlow.Application.Modules.Sites.Internal;
 using PharmaFlow.Application.Modules.Studies.Internal;
 using PharmaFlow.Domain.Common;
 using PharmaFlow.Infrastructure.Auth;
+using PharmaFlow.Infrastructure.Legacy;
 using PharmaFlow.Infrastructure.Outbox;
 using PharmaFlow.Infrastructure.Persistence;
 using PharmaFlow.Infrastructure.Persistence.Interceptors;
@@ -52,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<ISitesDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
         services.AddScoped<Application.Operator.IOperatorReadModel, Operator.OperatorReadModel>();
+        services.AddScoped<IAccountStatementReadModel, AccountStatementReadModel>();
 
         return services;
     }
