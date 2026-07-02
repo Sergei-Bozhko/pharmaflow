@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The legacy differential tests instantiate internal read models directly. -->
+    <InternalsVisibleTo Include="PharmaFlow.Tests.Integration" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PharmaFlow.Application\PharmaFlow.Application.csproj" />
     <ProjectReference Include="..\PharmaFlow.Domain\PharmaFlow.Domain.csproj" />
 
