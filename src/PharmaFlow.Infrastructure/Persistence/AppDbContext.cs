@@ -41,6 +41,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public DbSet<LegacyAccountTxn> LegacyAccountTxns => Set<LegacyAccountTxn>();
+    public DbSet<LegacyAccount> LegacyAccounts => Set<LegacyAccount>();
+    public DbSet<LegacyFeeSchedule> LegacyFeeSchedules => Set<LegacyFeeSchedule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

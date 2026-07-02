@@ -55,6 +55,7 @@ public static class DependencyInjection
 
         services.AddScoped<Application.Operator.IOperatorReadModel, Operator.OperatorReadModel>();
         services.AddScoped<IAccountStatementReadModel, AccountStatementReadModel>();
+        services.AddScoped<IMonthlyFeeReadModel, MonthlyFeeReadModel>();
 
         return services;
     }
