@@ -43,10 +43,13 @@ INSERT INTO dbo.account_txn (txn_id, account_id, posted_at, value_date, amount, 
     (8, 101, '2025-03-10T12:00:00Z', '2025-03-10',   -50.0000, 'WITHDRAWAL', 'Card purchase');
 
 -- Some movement on the savings account 102 — used by fee/interest functions.
-INSERT INTO dbo.account_txn (account_id, posted_at, value_date, amount, txn_type, description) VALUES
-    (102, '2025-01-02T09:00:00Z', '2025-01-02', 20000.0000, 'DEPOSIT',  'Initial funding'),
-    (102, '2025-01-20T09:00:00Z', '2025-01-20', -5000.0000, 'TRANSFER', 'Transfer out'),
-    (102, '2025-02-15T09:00:00Z', '2025-02-15',  3000.0000, 'DEPOSIT',  'Top-up');
+-- Explicit txn_ids (OVERRIDING SYSTEM VALUE) like the 101 block: the identity
+-- sequence isn't advanced until the setval at the end of this script, so an
+-- auto-id insert here would collide with the explicit 1–8 above.
+INSERT INTO dbo.account_txn (txn_id, account_id, posted_at, value_date, amount, txn_type, description) OVERRIDING SYSTEM VALUE VALUES
+    (9,  102, '2025-01-02T09:00:00Z', '2025-01-02', 20000.0000, 'DEPOSIT',  'Initial funding'),
+    (10, 102, '2025-01-20T09:00:00Z', '2025-01-20', -5000.0000, 'TRANSFER', 'Transfer out'),
+    (11, 102, '2025-02-15T09:00:00Z', '2025-02-15',  3000.0000, 'DEPOSIT',  'Top-up');
 
 -- ---------------------------------------------------------------------------
 -- Fee schedule (fn_assess_monthly_fees)
